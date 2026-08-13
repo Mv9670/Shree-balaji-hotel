@@ -1,7 +1,7 @@
 const roomData={
-  standard:{name:"Standard Room",rooms:["205","206","207","208","301","302","303","304","305","306","307"],images:["rooms/standard-1.jpg","rooms/standard-2.jpg","rooms/standard-3.jpg"]},
-  deluxe:{name:"Deluxe Room",rooms:["201","202","203","204"],images:["rooms/deluxe-1.jpg","rooms/deluxe-2.jpg","rooms/deluxe-3.jpg"]},
-  super:{name:"Super Deluxe Room",rooms:["101","102","103","104","105"],images:["rooms/super-1.jpg","rooms/super-2.jpg","rooms/super-3.jpg"]}
+  standard:{name:"Standard Room",rooms:["205","206","207","208","301","302","303","304","305","306","307"],images:["standard-1.jpg","standard-2.jpg","standard-3.jpg"]},
+  deluxe:{name:"Deluxe Room",rooms:["201","202","203","204"],images:["deluxe-1.jpg","deluxe-2.jpg","deluxe-3.jpg"]},
+  super:{name:"Super Deluxe Room",rooms:["101","102","103","104","105"],images:["super-1.jpg","super-2.jpg","super-3.jpg"]}
 };
 
 const sold=JSON.parse(localStorage.getItem("sbhSoldRooms")||"[]");
@@ -27,7 +27,7 @@ function moveSlide(btn,dir){
   const c=btn.closest(".carousel"), key=c.dataset.category, imgs=roomData[key].images;
   let i=Number(c.dataset.index)+dir;if(i<0)i=imgs.length-1;if(i>=imgs.length)i=0;
   c.dataset.index=i;c.querySelector("img").src=imgs[i];
-  c.querySelector("img").onerror=()=>c.querySelector("img").src="placeholder.svg";
+  
 }
 
 let selectedCategory="",selectedPrice=0;
