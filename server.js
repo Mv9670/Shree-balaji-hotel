@@ -29,9 +29,9 @@ const upload = multer({
 });
 
 const ROOM_TYPES = {
-  standard: { name: "Standard Room", rate: 1000, inventory: Number(process.env.STANDARD_ROOMS || 5) },
-  deluxe: { name: "Deluxe Room", rate: 1200, inventory: Number(process.env.DELUXE_ROOMS || 5) },
-  super_deluxe: { name: "Super Deluxe Room", rate: 1500, inventory: Number(process.env.SUPER_DELUXE_ROOMS || 5) }
+  standard: { name: "Standard Room", rate: 1000, inventory: Number(process.env.STANDARD_ROOMS || 7) },
+  deluxe: { name: "Deluxe Room", rate: 1200, inventory: Number(process.env.DELUXE_ROOMS || 7) },
+  super_deluxe: { name: "Super Deluxe Room", rate: 1500, inventory: Number(process.env.SUPER_DELUXE_ROOMS || 6) }
 };
 
 const db = new Database(path.join(__dirname, "hotel.db"));
@@ -158,7 +158,7 @@ app.post("/api/razorpay/webhook", express.raw({ type: "application/json" }), (re
 });
 
 app.use(express.json({ limit: "100kb" }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 function cleanupExpiredBookings() {
   const expired = db.prepare(`
@@ -352,7 +352,7 @@ app.get("/api/admin/id-document/:bookingRef/:guest", (req, res) => {
   res.sendFile(full);
 });
 
-app.get(/^(?!\/api\/).*/, (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+app.get(/^(?!\/api\/).*/, (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 app.listen(PORT, () => {
   console.log(`Shree Balaji Hotel booking site running on http://localhost:${PORT}`);
