@@ -1,73 +1,78 @@
-const state={
-  token:localStorage.getItem('sbhAdminToken')||'',
-  data:null
+const state = {
+  token: localStorage.getItem('sbhAdminToken') || '',
+  data: null
 };
 
-const $=s=>document.querySelector(s);
+const $ = s => document.querySelector(s);
 
-const fmt=n=>
-`₹${Number(n||0).toLocaleString('en-IN')}`;
+const fmt = n =>
+  `₹${Number(n || 0).toLocaleString('en-IN')}`;
 
-async function api(url,opts={}){
-  opts.headers={
-    ...(opts.headers||{}),
-    'Content-Type':'application/json'
+async function api(url, opts = {}) {
+  opts.headers = {
+    ...(opts.headers || {}),
+    'Content-Type': 'application/json'
   };
 
-  if(state.token){
-    opts.headers.Authorization=`Bearer ${state.token}`;
+  if (state.token) {
+    opts.headers.Authorization =
+      `Bearer ${state.token}`;
   }
 
-  const r=await fetch(url,opts);
+  const r = await fetch(url, opts);
 
-  let j={};
-  try{j=await r.json()}catch{}
+  let j = {};
+  try {
+    j = await r.json();
+  } catch {}
 
-  if(r.status===401){
+  if (r.status === 401) {
     logout(false);
     throw new Error('Session expired. Please login again.');
   }
 
-  if(!r.ok){
-    throw new Error(j.error||'Request failed');
+  if (!r.ok) {
+    throw new Error(j.error || 'Request failed');
   }
 
   return j;
 }
 
-function showApp(){
-  $('#loginView').classList.add('hidden');
-  $('#appView').classList.remove('hidden');
+/* =========================
+   LOGIN / LOGOUT
+========================= */
+
+function showApp() {
+  $('#loginView')?.classList.add('hidden');
+  $('#appView')?.classList.remove('hidden');
   loadAll();
 }
 
-function logout(call=true){
+function logout(call = true) {
   localStorage.removeItem('sbhAdminToken');
-  state.token='';
+  state.token = '';
 
-  $('#appView').classList.add('hidden');
-  $('#loginView').classList.remove('hidden');
+  $('#appView')?.classList.add('hidden');
+  $('#loginView')?.classList.remove('hidden');
 
-  if(call)location.reload();
+  if (call) location.reload();
 }
 
-/* LOGIN */
-
-$('#loginForm')?.addEventListener('submit',async e=>{
+$('#loginForm')?.addEventListener('submit', async e => {
   e.preventDefault();
 
-  $('#loginError').textContent='';
+  $('#loginError').textContent = '';
 
-  try{
-    const j=await api('/api/admin/login',{
-      method:'POST',
-      body:JSON.stringify({
-        username:$('#adminUser').value,
-        password:$('#adminPass').value
+  try {
+    const j = await api('/api/admin/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: $('#adminUser').value,
+        password: $('#adminPass').value
       })
     });
 
-    state.token=j.token;
+    state.token = j.token;
 
     localStorage.setItem(
       'sbhAdminToken',
@@ -76,71 +81,90 @@ $('#loginForm')?.addEventListener('submit',async e=>{
 
     showApp();
 
-  }catch(err){
-    $('#loginError').textContent=err.message;
+  } catch (err) {
+    $('#loginError').textContent =
+      err.message;
   }
 });
 
 $('#logoutBtn')?.addEventListener(
   'click',
-  ()=>logout()
+  () => logout()
 );
 
-/* NAVIGATION */
+/* =========================
+   NAVIGATION
+========================= */
 
-function switchView(v){
+function switchView(v) {
 
-  document.querySelectorAll('.view')
-    .forEach(x=>x.classList.add('hidden'));
+  document
+    .querySelectorAll('.view')
+    .forEach(x =>
+      x.classList.add('hidden')
+    );
 
   $(`#${v}View`)?.classList.remove('hidden');
 
-  document.querySelectorAll('.nav-item')
-    .forEach(b=>
+  document
+    .querySelectorAll('.nav-item')
+    .forEach(b =>
       b.classList.toggle(
         'active',
-        b.dataset.view===v
+        b.dataset.view === v
       )
     );
 
-  if($('#pageTitle')){
-    $('#pageTitle').textContent={
-      dashboard:'Dashboard',
-      rooms:'Room Inventory',
-      bookings:'Bookings',
-      payments:'Payments',
-      settings:'Settings'
-    }[v]||'Dashboard';
+  const titles = {
+    dashboard: 'Dashboard',
+    rooms: 'Room Inventory',
+    bookings: 'Bookings',
+    payments: 'Payments',
+    settings: 'Settings'
+  };
+
+  if ($('#pageTitle')) {
+    $('#pageTitle').textContent =
+      titles[v] || 'Dashboard';
   }
 
-  if(v==='bookings')renderBookings();
-  if(v==='payments')renderPayments();
-  if(v==='settings')loadSettings();
+  if (v === 'bookings')
+    renderBookings();
+
+  if (v === 'payments')
+    renderPayments();
+
+  if (v === 'rooms')
+    renderRooms();
 }
 
-document.querySelectorAll('.nav-item')
-.forEach(b=>
-  b.addEventListener(
-    'click',
-    ()=>switchView(b.dataset.view)
-  )
-);
+document
+  .querySelectorAll('.nav-item')
+  .forEach(b =>
+    b.addEventListener(
+      'click',
+      () => switchView(b.dataset.view)
+    )
+  );
 
-document.querySelectorAll('[data-jump]')
-.forEach(b=>
-  b.addEventListener(
-    'click',
-    ()=>switchView(b.dataset.jump)
-  )
-);
+document
+  .querySelectorAll('[data-jump]')
+  .forEach(b =>
+    b.addEventListener(
+      'click',
+      () => switchView(b.dataset.jump)
+    )
+  );
 
-/* LOAD */
+/* =========================
+   LOAD DASHBOARD
+========================= */
 
-async function loadAll(){
+async function loadAll() {
 
-  try{
+  try {
 
-    state.data=
+    state.data =
       await api('/api/admin/dashboard');
 
     renderDashboard();
@@ -148,216 +172,274 @@ async function loadAll(){
     renderBookings();
     renderPayments();
 
-    if($('#lastUpdated')){
-      $('#lastUpdated').textContent=
-        'Updated '+
+    if ($('#lastUpdated')) {
+      $('#lastUpdated').textContent =
+        'Updated ' +
         new Date().toLocaleTimeString(
           [],
           {
-            hour:'2-digit',
-            minute:'2-digit'
+            hour: '2-digit',
+            minute: '2-digit'
           }
         );
     }
 
-  }catch(e){
+    loadSettings();
 
-    if(state.token){
+  } catch (e) {
+
+    if (state.token) {
       alert(e.message);
     }
+
   }
 }
 
-/* DASHBOARD */
+/* =========================
+   DASHBOARD
+========================= */
 
-function renderDashboard(){
+function renderDashboard() {
 
-  const d=state.data;
+  const d = state.data;
 
-  $('#mTotal').textContent=d.totalRooms;
-  $('#mAvailable').textContent=d.availableRooms;
-  $('#mBooked').textContent=d.bookedRooms;
-  $('#mBookings').textContent=d.bookings.length;
+  if (!d) return;
 
-  $('#pRevenue').textContent=
+  $('#mTotal').textContent =
+    d.totalRooms;
+
+  $('#mAvailable').textContent =
+    d.availableRooms;
+
+  $('#mBooked').textContent =
+    d.bookedRooms;
+
+  $('#mBookings').textContent =
+    d.bookings.length;
+
+  $('#pRevenue').textContent =
     fmt(d.revenue);
 
-  $('#pPaid').textContent=
+  $('#pPaid').textContent =
     d.payments.filter(
-      x=>x.status==='paid'
+      x => x.status === 'paid'
     ).length;
 
-  $('#pPending').textContent=
+  $('#pPending').textContent =
     d.payments.filter(
-      x=>x.status!=='paid'
+      x => x.status !== 'paid'
     ).length;
 
-  $('#dashRooms').innerHTML=
-    groupsHtml(d.rooms);
+  if ($('#dashRooms')) {
+    $('#dashRooms').innerHTML =
+      groupsHtml(d.rooms);
+  }
 
-  $('#recentBookings').innerHTML=
-    d.bookings
-      .slice(-6)
-      .reverse()
-      .map(bookingHtml)
-      .join('')
-      ||
+  if ($('#recentBookings')) {
+
+    $('#recentBookings').innerHTML =
+      d.bookings
+        .slice(0, 6)
+        .map(bookingHtml)
+        .join('') ||
       '<p class="muted">No bookings yet.</p>';
+  }
 }
 
-/* ROOMS */
-
-function groupsHtml(groups){
+function groupsHtml(groups) {
 
   return Object.entries(groups)
-    .map(([cat,g])=>`
+    .map(([cat, g]) => {
 
-<div class="room-group">
+      return `
+      <div class="room-group">
 
-<div class="room-group-head">
+        <div class="room-group-head">
 
-<h4>
-${g.name} · ${fmt(g.price)}/night
-</h4>
+          <h4>
+            ${g.name}
+            · ${fmt(g.price)}/night
+          </h4>
 
-<span class="tag ${g.available?'green':'red'}">
-${g.available} available / ${g.total}
-</span>
+          <span class="tag ${
+            g.available
+              ? 'green'
+              : 'red'
+          }">
+            ${g.available}
+            available / ${g.total}
+          </span>
 
-</div>
+        </div>
 
-<div class="room-badges">
+        <div class="room-badges">
 
-${g.rooms.map(r=>`
+          ${g.rooms.map(r => `
+            <span
+              class="room-badge ${r.status}"
+              title="${r.status}"
+              onclick="quickStatus(
+                '${cat}',
+                '${r.number}'
+              )">
 
-<span
-class="room-badge ${r.status}"
-title="${r.status}"
-onclick="quickStatus('${cat}','${r.number}')"
->
-${r.number} · ${r.status}
-</span>
+              ${r.number}
+              · ${r.status}
 
-`).join('')}
+            </span>
+          `).join('')}
 
-</div>
-</div>
+        </div>
 
-`).join('');
+      </div>
+      `;
+
+    })
+    .join('');
 }
 
-function renderRooms(){
+/* =========================
+   ROOM INVENTORY
+========================= */
 
-  $('#roomInventory').innerHTML=
+function renderRooms() {
+
+  if (!state.data) return;
+
+  $('#roomInventory').innerHTML =
     Object.entries(state.data.rooms)
-    .map(([cat,g])=>`
+      .map(([cat, g]) => {
 
-<div class="room-group">
+        return `
+        <div class="room-group">
 
-<div class="room-group-head">
+          <div class="room-group-head">
 
-<h4>${g.name}</h4>
+            <h4>${g.name}</h4>
 
-<span class="tag ${g.available?'green':'red'}">
-${g.available} AVAILABLE
-</span>
+            <span class="tag ${
+              g.available
+                ? 'green'
+                : 'red'
+            }">
 
-</div>
+              ${g.available}
+              AVAILABLE
 
-<table class="room-table">
+            </span>
 
-<thead>
-<tr>
-<th>Room</th>
-<th>Status</th>
-<th>Rate</th>
-<th>Action</th>
-</tr>
-</thead>
+          </div>
 
-<tbody>
+          <table class="room-table">
 
-${g.rooms.map(r=>`
+            <thead>
+              <tr>
+                <th>Room</th>
+                <th>Status</th>
+                <th>Rate</th>
+                <th>Action</th>
+              </tr>
+            </thead>
 
-<tr>
+            <tbody>
 
-<td>
-<b>Room ${r.number}</b>
-</td>
+              ${g.rooms.map(r => `
 
-<td>
-<span class="tag ${
-r.status==='available'
-?'green'
-:r.status==='booked'
-?'red'
-:'gold'
-}">
-${r.status.toUpperCase()}
-</span>
-</td>
+                <tr>
 
-<td>
-${fmt(g.price)}
-</td>
+                  <td>
+                    <b>Room ${r.number}</b>
+                  </td>
 
-<td>
+                  <td>
 
-<select
-class="status-select"
-onchange="changeStatus(
-'${cat}',
-'${r.number}',
-this.value
-)"
->
+                    <span class="tag ${
+                      r.status === 'available'
+                        ? 'green'
+                        : r.status === 'booked'
+                        ? 'red'
+                        : 'gold'
+                    }">
 
-<option value="available"
-${r.status==='available'?'selected':''}>
-available
-</option>
+                      ${r.status.toUpperCase()}
 
-<option value="booked"
-${r.status==='booked'?'selected':''}>
-booked
-</option>
+                    </span>
 
-<option value="maintenance"
-${r.status==='maintenance'?'selected':''}>
-maintenance
-</option>
+                  </td>
 
-</select>
+                  <td>
+                    ${fmt(g.price)}
+                  </td>
 
-</td>
+                  <td>
 
-</tr>
+                    <select
+                      class="status-select"
+                      onchange="
+                        changeStatus(
+                          '${cat}',
+                          '${r.number}',
+                          this.value
+                        )
+                      ">
 
-`).join('')}
+                      <option ${
+                        r.status === 'available'
+                          ? 'selected'
+                          : ''
+                      }>
+                        available
+                      </option>
 
-</tbody>
-</table>
-</div>
+                      <option ${
+                        r.status === 'booked'
+                          ? 'selected'
+                          : ''
+                      }>
+                        booked
+                      </option>
 
-`).join('');
+                      <option ${
+                        r.status === 'maintenance'
+                          ? 'selected'
+                          : ''
+                      }>
+                        maintenance
+                      </option>
+
+                    </select>
+
+                  </td>
+
+                </tr>
+
+              `).join('')}
+
+            </tbody>
+
+          </table>
+
+        </div>
+        `;
+
+      })
+      .join('');
 }
-
-/* ROOM STATUS */
 
 async function changeStatus(
-  cat,
+  category,
   room,
   status
-){
+) {
 
-  try{
+  try {
 
     await api(
       '/api/admin/rooms/status',
       {
-        method:'POST',
-        body:JSON.stringify({
-          category:cat,
+        method: 'POST',
+        body: JSON.stringify({
+          category,
           room,
           status
         })
@@ -366,698 +448,891 @@ async function changeStatus(
 
     await loadAll();
 
-  }catch(e){
+  } catch (e) {
+
     alert(e.message);
+
   }
 }
 
-async function quickStatus(cat,room){
+async function quickStatus(
+  category,
+  room
+) {
 
-  const s=prompt(
-    `Set Room ${room} status:\navailable / booked / maintenance`,
+  const s = prompt(
+    `Set Room ${room} status:
+available / booked / maintenance`,
     'available'
   );
 
-  if(
+  if (
     !s ||
     ![
       'available',
       'booked',
       'maintenance'
     ].includes(s)
-  )return;
+  ) return;
 
   await changeStatus(
-    cat,
+    category,
     room,
     s
   );
 }
 
-/* BOOKING CARD */
+/* =========================
+   BOOKING MINI CARD
+========================= */
 
-function bookingHtml(b){
+function bookingHtml(b) {
 
   return `
+  <div class="booking-mini">
 
-<div class="booking-mini">
+    <b>${b.bookingId}</b>
 
-<b>${b.bookingId}</b>
+    <div>
+      ${b.guestName}
+      · Room ${b.room}
+      · ${b.category}
+    </div>
 
-<div>
-${b.guestName}
-· Room ${b.room}
-· ${b.category}
-</div>
+    <small>
+      ${b.checkin}
+      →
+      ${b.checkout}
+      · ${fmt(b.amount)}
 
-<small>
+      ·
 
-${b.checkin}
-→
-${b.checkout}
+      <span class="tag ${
+        b.paymentStatus === 'paid'
+          ? 'green'
+          : 'gold'
+      }">
 
-· ${fmt(b.amount)}
+        ${b.paymentStatus}
 
-·
+      </span>
 
-<span class="tag ${
-b.paymentStatus==='paid'
-?'green'
-:b.paymentStatus==='refunded'
-?'red'
-:'gold'
-}">
-${b.paymentStatus}
-</span>
+    </small>
 
-·
-
-<span class="tag ${
-b.status==='confirmed'
-?'green'
-:b.status==='cancelled'
-?'red'
-:'gold'
-}">
-${b.status}
-</span>
-
-</small>
-
-</div>
-
-`;
+  </div>
+  `;
 }
 
-/* BOOKINGS */
+/* =========================
+   BOOKINGS
+========================= */
 
-function renderBookings(){
+function renderBookings() {
 
-  if(!state.data)return;
+  if (!state.data) return;
 
-  const q=
-    ($('#bookingSearch')?.value||'')
-    .toLowerCase();
+  const q =
+    (
+      $('#bookingSearch')?.value ||
+      ''
+    ).toLowerCase();
 
-  const st=
-    $('#bookingStatus')?.value||'all';
+  const st =
+    $('#bookingStatus')?.value ||
+    'all';
 
-  const rows=
-    state.data.bookings.filter(b=>
-      (st==='all'||b.status===st) &&
-      (
+  let rows =
+    state.data.bookings.filter(b => {
+
+      const matchesStatus =
+        st === 'all' ||
+        b.status === st;
+
+      const matchesSearch =
         !q ||
         JSON.stringify(b)
           .toLowerCase()
-          .includes(q)
-      )
-    );
+          .includes(q);
 
-  $('#bookingRows').innerHTML=
-
-    rows
-    .slice()
-    .reverse()
-    .map(b=>`
-
-<tr>
-
-<td>
-<b>${b.bookingId}</b>
-<br>
-<small>
-${new Date(b.createdAt)
-.toLocaleString('en-IN')}
-</small>
-</td>
-
-<td>
-${b.guestName}
-<br>
-<small>${b.phone}</small>
-</td>
-
-<td>
-${b.room}
-<br>
-<small>${b.category}</small>
-</td>
-
-<td>
-${b.checkin}
-<br>
-${b.checkout}
-</td>
-
-<td>
-${fmt(b.amount)}
-</td>
-
-<td>
-
-<select
-onchange="
-updatePayment(
-'${b.bookingId}',
-this.value
-)
-">
-
-<option value="pending"
-${b.paymentStatus==='pending'?'selected':''}>
-Pending
-</option>
-
-<option value="paid"
-${b.paymentStatus==='paid'?'selected':''}>
-Paid
-</option>
-
-<option value="refunded"
-${b.paymentStatus==='refunded'?'selected':''}>
-Refunded
-</option>
-
-</select>
-
-${b.paymentId
-?`<br><small>${b.paymentId}</small>`
-:''}
-
-</td>
-
-<td>
-
-<select
-onchange="
-updateBookingStatus(
-'${b.bookingId}',
-this.value
-)
-">
-
-<option value="confirmed"
-${b.status==='confirmed'?'selected':''}>
-Confirmed
-</option>
-
-<option value="cancelled"
-${b.status==='cancelled'?'selected':''}>
-Cancelled
-</option>
-
-</select>
-
-</td>
-
-<td>
-
-<button
-onclick="
-bookingDetails('${b.bookingId}')
-">
-Details
-</button>
-
-<button
-onclick="
-printInvoice('${b.bookingId}')
-">
-Invoice
-</button>
-
-<button
-onclick="
-sendWhatsApp('${b.bookingId}')
-">
-WhatsApp
-</button>
-
-</td>
-
-</tr>
-
-`).join('')
-
-||
-
-'<tr><td colspan="8" class="muted">No matching bookings.</td></tr>';
-}
-
-/* SEARCH */
-
-$('#bookingSearch')?.addEventListener(
-  'input',
-  renderBookings
-);
-
-$('#bookingStatus')?.addEventListener(
-  'change',
-  renderBookings
-);
-
-/* DETAILS */
-
-async function bookingDetails(id){
-
-  try{
-
-    const j=
-      await api(
-        `/api/admin/bookings/${encodeURIComponent(id)}`
+      return (
+        matchesStatus &&
+        matchesSearch
       );
 
-    const b=j.booking;
+    });
 
-    alert(
+  $('#bookingRows').innerHTML =
 
-`BOOKING DETAILS
+    rows.map(b => `
 
-Booking ID: ${b.bookingId}
+      <tr>
 
-Guest: ${b.guestName}
+        <td>
 
-Phone: ${b.phone}
+          <b>${b.bookingId}</b>
 
-Room: ${b.room}
+          <br>
 
-Room Type: ${b.category}
+          <small>
+            ${new Date(
+              b.createdAt
+            ).toLocaleString()}
+          </small>
 
-Check-in: ${b.checkin}
+        </td>
 
-Check-out: ${b.checkout}
+        <td>
 
-Amount: ${fmt(b.amount)}
+          ${b.guestName}
 
-Payment: ${b.paymentStatus}
+          <br>
 
-Booking Status: ${b.status}
+          <small>
+            ${b.phone || ''}
+          </small>
 
-Payment ID: ${b.paymentId||'—'}
+        </td>
 
-Created:
-${new Date(b.createdAt).toLocaleString('en-IN')}`
+        <td>
 
-    );
+          ${b.room}
 
-  }catch(e){
+          <br>
+
+          <small>
+            ${b.category}
+          </small>
+
+        </td>
+
+        <td>
+
+          ${b.checkin}
+
+          <br>
+
+          ${b.checkout}
+
+        </td>
+
+        <td>
+          ${fmt(b.amount)}
+        </td>
+
+        <td>
+
+          <span class="tag ${
+            b.paymentStatus === 'paid'
+              ? 'green'
+              : b.paymentStatus === 'failed'
+              ? 'red'
+              : 'gold'
+          }">
+
+            ${b.paymentStatus}
+
+          </span>
+
+          ${
+            b.paymentId
+              ? `<br><small>
+                   ${b.paymentId}
+                 </small>`
+              : ''
+          }
+
+        </td>
+
+        <td>
+
+          <span class="tag ${
+            b.status === 'confirmed'
+              ? 'green'
+              : b.status === 'cancelled'
+              ? 'red'
+              : 'gold'
+          }">
+
+            ${b.status}
+
+          </span>
+
+        </td>
+
+        <td>
+
+          <div class="booking-actions">
+
+            <button
+              onclick="
+                viewBooking(
+                  '${b.bookingId}'
+                )
+              ">
+              Details
+            </button>
+
+            <button
+              onclick="
+                changeBookingStatus(
+                  '${b.bookingId}'
+                )
+              ">
+              Status
+            </button>
+
+            <button
+              onclick="
+                changePaymentStatus(
+                  '${b.bookingId}'
+                )
+              ">
+              Payment
+            </button>
+
+            ${
+              b.status !== 'cancelled'
+              ? `
+              <button
+                onclick="
+                  cancelBooking(
+                    '${b.bookingId}'
+                  )
+                ">
+                Cancel
+              </button>
+              `
+              : ''
+            }
+
+            <button
+              onclick="
+                openInvoice(
+                  '${b.bookingId}'
+                )
+              ">
+              Invoice
+            </button>
+
+            <button
+              onclick="
+                openWhatsApp(
+                  '${b.bookingId}'
+                )
+              ">
+              WhatsApp
+            </button>
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    `).join('') ||
+
+    `
+    <tr>
+      <td colspan="8"
+          class="muted">
+        No matching bookings.
+      </td>
+    </tr>
+    `;
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+$('#bookingSearch')
+  ?.addEventListener(
+    'input',
+    renderBookings
+  );
+
+$('#bookingStatus')
+  ?.addEventListener(
+    'change',
+    renderBookings
+  );
+
+/* =========================
+   BOOKING DETAILS
+========================= */
+
+async function viewBooking(
+  bookingId
+) {
+
+  try {
+
+    const j =
+      await api(
+        `/api/admin/bookings/${encodeURIComponent(
+          bookingId
+        )}`
+      );
+
+    const b = j.booking;
+
+    alert(`
+BOOKING DETAILS
+
+Booking ID:
+${b.bookingId}
+
+Guest:
+${b.guestName}
+
+Phone:
+${b.phone}
+
+Room:
+${b.room}
+
+Room Type:
+${b.category}
+
+Check-in:
+${b.checkin}
+
+Check-out:
+${b.checkout}
+
+Amount:
+${fmt(b.amount)}
+
+Payment:
+${b.paymentStatus}
+
+Booking Status:
+${b.status}
+    `);
+
+  } catch (e) {
+
     alert(e.message);
+
   }
 }
 
-/* CANCEL / STATUS */
+/* =========================
+   BOOKING STATUS
+========================= */
 
-async function updateBookingStatus(
-  id,
-  status
-){
+async function changeBookingStatus(
+  bookingId
+) {
 
-  if(
-    status==='cancelled' &&
-    !confirm(
-      'Cancel this booking and release the room?'
-    )
-  ){
-    renderBookings();
-    return;
-  }
+  const status =
+    prompt(
+      `Enter booking status:
 
-  try{
-
-    await api(
-      `/api/admin/bookings/${encodeURIComponent(id)}/status`,
-      {
-        method:'POST',
-        body:JSON.stringify({status})
-      }
+confirmed
+checked-in
+checked-out
+cancelled
+no-show`,
+      'confirmed'
     );
 
-    await loadAll();
-    switchView('bookings');
+  if (!status) return;
 
-  }catch(e){
-
-    alert(e.message);
-    await loadAll();
-  }
-}
-
-/* PAYMENT */
-
-async function updatePayment(
-  id,
-  paymentStatus
-){
-
-  try{
+  try {
 
     await api(
-      `/api/admin/bookings/${encodeURIComponent(id)}/payment`,
+      '/api/admin/bookings/status',
       {
-        method:'POST',
-        body:JSON.stringify({
-          paymentStatus
+        method: 'POST',
+        body: JSON.stringify({
+          bookingId,
+          status
         })
       }
     );
 
     await loadAll();
-    switchView('bookings');
 
-  }catch(e){
+  } catch (e) {
 
     alert(e.message);
-    await loadAll();
+
   }
 }
 
-/* INVOICE */
+/* =========================
+   PAYMENT STATUS
+========================= */
 
-async function printInvoice(id){
+async function changePaymentStatus(
+  bookingId
+) {
 
-  try{
+  const status =
+    prompt(
+      `Enter payment status:
 
-    const j=
-      await api(
-        `/api/admin/bookings/${encodeURIComponent(id)}/invoice`
-      );
-
-    const w=window.open(
-      '',
-      '_blank'
+paid
+pending
+failed
+refunded`,
+      'paid'
     );
 
-    if(!w){
-      alert(
-        'Please allow pop-ups for invoice printing.'
-      );
-      return;
-    }
+  if (!status) return;
 
-    w.document.open();
-    w.document.write(j.html);
-    w.document.close();
+  try {
 
-  }catch(e){
+    await api(
+      '/api/admin/payments/status',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          bookingId,
+          status
+        })
+      }
+    );
+
+    await loadAll();
+
+  } catch (e) {
+
     alert(e.message);
+
   }
 }
 
-/* WHATSAPP */
+/* =========================
+   CANCEL BOOKING
+========================= */
 
-async function sendWhatsApp(id){
+async function cancelBooking(
+  bookingId
+) {
 
-  try{
+  if (
+    !confirm(
+      `Cancel booking ${bookingId}?`
+    )
+  ) return;
 
-    const j=
-      await api(
-        `/api/admin/bookings/${encodeURIComponent(id)}`
+  try {
+
+    await api(
+      '/api/admin/bookings/cancel',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          bookingId
+        })
+      }
+    );
+
+    alert(
+      'Booking cancelled successfully.'
+    );
+
+    await loadAll();
+
+  } catch (e) {
+
+    alert(e.message);
+
+  }
+}
+
+/* =========================
+   INVOICE
+========================= */
+
+function openInvoice(
+  bookingId
+) {
+
+  const token =
+    encodeURIComponent(
+      state.token
+    );
+
+  const url =
+    `/api/admin/bookings/${
+      encodeURIComponent(bookingId)
+    }/invoice`;
+
+  /*
+    Invoice endpoint needs
+    Authorization header.
+    Open a temporary window
+    using fetch and Blob.
+  */
+
+  fetch(url, {
+    headers: {
+      Authorization:
+        `Bearer ${state.token}`
+    }
+  })
+  .then(r => {
+
+    if (!r.ok)
+      throw new Error(
+        'Unable to generate invoice.'
       );
 
-    const b=j.booking;
+    return r.text();
 
-    let phone=
-      String(b.phone||'')
-      .replace(/\D/g,'');
+  })
+  .then(html => {
 
-    if(phone.length===10){
-      phone='91'+phone;
-    }
+    const blob =
+      new Blob(
+        [html],
+        { type: 'text/html' }
+      );
 
-    const message=
-`Namaste ${b.guestName},
-
-Your booking at Shree Balaji Hotel is ${b.status}.
-
-Booking ID: ${b.bookingId}
-Room: ${b.room} (${b.category})
-Check-in: ${b.checkin}
-Check-out: ${b.checkout}
-Amount: ${fmt(b.amount)}
-Payment: ${b.paymentStatus}
-
-Thank you for choosing Shree Balaji Hotel.`;
-
-    const url=
-      `https://wa.me/${phone}?text=${
-        encodeURIComponent(message)
-      }`;
+    const blobUrl =
+      URL.createObjectURL(blob);
 
     window.open(
-      url,
+      blobUrl,
       '_blank'
     );
 
-  }catch(e){
+  })
+  .catch(e =>
+    alert(e.message)
+  );
+}
+
+/* =========================
+   WHATSAPP
+========================= */
+
+async function openWhatsApp(
+  bookingId
+) {
+
+  try {
+
+    const j =
+      await api(
+        `/api/admin/bookings/${
+          encodeURIComponent(
+            bookingId
+          )
+        }/whatsapp`
+      );
+
+    window.open(
+      j.whatsappUrl,
+      '_blank'
+    );
+
+  } catch (e) {
+
     alert(e.message);
+
   }
 }
 
-/* PAYMENTS */
+/* =========================
+   PAYMENTS
+========================= */
 
-function renderPayments(){
+function renderPayments() {
 
-  const p=
-    state.data.payments||[];
+  if (!state.data) return;
 
-  $('#paymentRows').innerHTML=
+  const p =
+    state.data.payments || [];
 
-    p
-    .slice()
-    .reverse()
-    .map(x=>`
+  $('#paymentRows').innerHTML =
 
-<tr>
+    p.map(x => `
 
-<td>
-${x.paymentId||'—'}
-</td>
+      <tr>
 
-<td>
-${x.bookingId}
-</td>
+        <td>
+          ${x.paymentId || '—'}
+        </td>
 
-<td>
-${x.room}
-</td>
+        <td>
+          ${x.bookingId}
+        </td>
 
-<td>
-${fmt(x.amount)}
-</td>
+        <td>
+          ${x.room}
+        </td>
 
-<td>
+        <td>
+          ${fmt(x.amount)}
+        </td>
 
-<span class="tag ${
-x.status==='paid'
-?'green'
-:x.status==='refunded'
-?'red'
-:'gold'
-}">
-${x.status}
-</span>
+        <td>
 
-</td>
+          <span class="tag ${
+            x.status === 'paid'
+              ? 'green'
+              : x.status === 'failed'
+              ? 'red'
+              : 'gold'
+          }">
 
-<td>
-${new Date(x.createdAt)
-.toLocaleString('en-IN')}
-</td>
+            ${x.status}
 
-</tr>
+          </span>
 
-`).join('')
+        </td>
 
-||
+        <td>
+          ${new Date(
+            x.createdAt
+          ).toLocaleString()}
+        </td>
 
-'<tr><td colspan="6" class="muted">No payment records.</td></tr>';
+      </tr>
+
+    `).join('') ||
+
+    `
+    <tr>
+      <td colspan="6"
+          class="muted">
+        No payment records.
+      </td>
+    </tr>
+    `;
 }
 
-/* MANUAL BOOKING */
+/* =========================
+   MANUAL BOOKING
+========================= */
 
-$('#newBookingBtn')?.addEventListener(
-  'click',
-  ()=>{
-    $('#bookingModal')
-      .classList
-      .remove('hidden');
+$('#newBookingBtn')
+  ?.addEventListener(
+    'click',
+    () => {
 
-    populateManualRooms();
-  }
-);
+      $('#bookingModal')
+        ?.classList
+        .remove('hidden');
+
+      populateManualRooms();
+
+    }
+  );
 
 document
-.querySelectorAll('[data-close]')
-.forEach(b=>
-  b.addEventListener(
-    'click',
-    ()=>$('#bookingModal')
-      .classList
-      .add('hidden')
-  )
-);
+  .querySelectorAll('[data-close]')
+  .forEach(b =>
+    b.addEventListener(
+      'click',
+      () =>
+        $('#bookingModal')
+          ?.classList
+          .add('hidden')
+    )
+  );
 
-function populateManualRooms(){
+function populateManualRooms() {
 
-  const cat=$('#bCat').value;
+  if (!state.data) return;
 
-  const g=state.data.rooms[cat];
+  const cat =
+    $('#bCat').value;
 
-  $('#bRoom').innerHTML=
+  const g =
+    state.data.rooms[cat];
+
+  if (!g) return;
+
+  $('#bRoom').innerHTML =
 
     g.rooms
-    .filter(r=>
-      r.status==='available'
-    )
-    .map(r=>
-      `<option value="${r.number}">
-        ${r.number}
-      </option>`
-    )
-    .join('')
-
-    ||
+      .filter(
+        r => r.status === 'available'
+      )
+      .map(
+        r =>
+          `<option value="${r.number}">
+             ${r.number}
+           </option>`
+      )
+      .join('') ||
 
     '<option value="">No available rooms</option>';
 
-  $('#bAmount').value=
+  $('#bAmount').value =
     g.price;
 }
 
-$('#bCat')?.addEventListener(
-  'change',
-  populateManualRooms
-);
+$('#bCat')
+  ?.addEventListener(
+    'change',
+    populateManualRooms
+  );
 
-$('#manualBooking')?.addEventListener(
-  'submit',
-  async e=>{
+$('#manualBooking')
+  ?.addEventListener(
+    'submit',
+    async e => {
 
-    e.preventDefault();
+      e.preventDefault();
 
-    try{
+      try {
 
+        await api(
+          '/api/admin/bookings',
+          {
+            method: 'POST',
+
+            body: JSON.stringify({
+
+              guestName:
+                $('#bGuest').value,
+
+              phone:
+                $('#bPhone').value,
+
+              category:
+                $('#bCat').value,
+
+              room:
+                $('#bRoom').value,
+
+              checkin:
+                $('#bIn').value,
+
+              checkout:
+                $('#bOut').value,
+
+              amount:
+                Number(
+                  $('#bAmount').value
+                ),
+
+              paymentStatus:
+                $('#bPay').value
+
+            })
+          }
+        );
+
+        $('#bookingModal')
+          ?.classList
+          .add('hidden');
+
+        e.target.reset();
+
+        alert(
+          'Booking created successfully.'
+        );
+
+        await loadAll();
+
+        switchView('bookings');
+
+      } catch (err) {
+
+        alert(err.message);
+
+      }
+
+    }
+  );
+
+/* =========================
+   SETTINGS
+========================= */
+
+async function loadSettings() {
+
+  try {
+
+    const s =
       await api(
-        '/api/admin/bookings',
-        {
-          method:'POST',
-          body:JSON.stringify({
-
-            guestName:
-              $('#bGuest').value,
-
-            phone:
-              $('#bPhone').value,
-
-            category:
-              $('#bCat').value,
-
-            room:
-              $('#bRoom').value,
-
-            checkin:
-              $('#bIn').value,
-
-            checkout:
-              $('#bOut').value,
-
-            amount:
-              Number($('#bAmount').value),
-
-            paymentStatus:
-              $('#bPay').value
-
-          })
-        }
+        '/api/admin/settings'
       );
 
-      $('#bookingModal')
-        .classList
-        .add('hidden');
+    if ($('#setName'))
+      $('#setName').value =
+        s.name || '';
 
-      e.target.reset();
+    if ($('#setWa'))
+      $('#setWa').value =
+        s.whatsapp || '';
 
-      await loadAll();
+    if ($('#setAddress'))
+      $('#setAddress').value =
+        s.address || '';
 
-      switchView('bookings');
+    if ($('#setCheckin'))
+      $('#setCheckin').value =
+        s.checkin_time || '';
 
-    }catch(err){
+    if ($('#setCheckout'))
+      $('#setCheckout').value =
+        s.checkout_time || '';
 
-      alert(err.message);
-    }
-  }
-);
+  } catch (e) {
 
-/* SETTINGS */
-
-async function loadSettings(){
-
-  try{
-
-    const s=
-      await api('/api/admin/settings');
-
-    if($('#setName'))
-      $('#setName').value=s.name||'';
-
-    if($('#setWa'))
-      $('#setWa').value=s.whatsapp||'';
-
-    if($('#setAddress'))
-      $('#setAddress').value=s.address||'';
-
-    if($('#setCheckin'))
-      $('#setCheckin').value=s.checkinTime||'12:00';
-
-    if($('#setCheckout'))
-      $('#setCheckout').value=s.checkoutTime||'11:00';
-
-  }catch(e){
     console.error(e);
+
   }
 }
 
-$('#saveSettings')?.addEventListener(
-  'click',
-  async()=>{
+$('#saveSettings')
+  ?.addEventListener(
+    'click',
+    async () => {
 
-    try{
+      try {
 
-      await api(
-        '/api/admin/settings',
-        {
-          method:'POST',
-          body:JSON.stringify({
+        await api(
+          '/api/admin/settings',
+          {
+            method: 'POST',
 
-            name:
-              $('#setName').value,
+            body: JSON.stringify({
 
-            whatsapp:
-              $('#setWa').value,
+              name:
+                $('#setName').value,
 
-            address:
-              $('#setAddress').value,
+              whatsapp:
+                $('#setWa').value,
 
-            checkinTime:
-              $('#setCheckin').value,
+              address:
+                $('#setAddress').value,
 
-            checkoutTime:
-              $('#setCheckout').value
+              checkinTime:
+                $('#setCheckin').value,
 
-          })
-        }
-      );
+              checkoutTime:
+                $('#setCheckout').value
 
-      alert('Settings saved successfully.');
+            })
+          }
+        );
 
-    }catch(e){
-      alert(e.message);
+        alert(
+          'Settings saved successfully.'
+        );
+
+      } catch (e) {
+
+        alert(e.message);
+
+      }
+
     }
-  }
-);
+  );
 
-/* AUTO LOGIN */
+/* =========================
+   AUTO LOGIN
+========================= */
 
-if(state.token){
+if (state.token) {
   showApp();
 }
