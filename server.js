@@ -1710,7 +1710,21 @@ app.post(
 
   }
 );
+/* =========================
+   ADMIN PAGE ROUTES
+========================= */
 
+app.get('/admin', (req, res) => {
+  res.sendFile(
+    path.join(__dirname, 'admin.html')
+  );
+});
+
+app.get('/admin.html', (req, res) => {
+  res.sendFile(
+    path.join(__dirname, 'admin.html')
+  );
+});
 /* =========================
    FALLBACK
 ========================= */
