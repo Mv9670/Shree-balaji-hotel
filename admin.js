@@ -821,44 +821,45 @@ ${b.status}
    BOOKING STATUS
 ========================= */
 
-async function changeBookingStatus(
-  bookingId
-) {
-
-  const status =
-    prompt(
-      `Enter booking status:
+async function changeBookingStatus(bookingId) {
+    const status = prompt(
+        `Enter booking status:
 
 confirmed
 checked-in
 checked-out
 cancelled
 no-show`,
-      'confirmed'
+        'confirmed'
     );
 
-  if (!status) return;
+    if (!status) return;
 
-  try {
+    const allowed = [
+        'confirmed',
+        'checked-in',
+        'checked-out',
+        'cancelled',
+        'no-show'
+    ];
 
-    await api(
-      '/api/admin/bookings/status',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          bookingId,
-          status
-        })
-      }
-    );
+    if (!allowed.includes(status)) {
+        alert('Invalid booking status.');
+        return;
+    }
 
-    await loadAll();
+    try {
+        await api(`/api/admin/bookings/${bookingId}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status })
+        });
 
-  } catch (e) {
+        alert(`Booking status changed to: ${status}`);
+        await loadAll();
 
-    alert(e.message);
-
-  }
+    } catch (e) {
+        alert(e.message || 'Unable to update booking status.');
+    }
 }
 
 /* =========================
