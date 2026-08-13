@@ -955,43 +955,99 @@ async function changeBookingStatus(bookingId) {
    PAYMENT STATUS
 ========================= */
 
-async function changePaymentStatus(
-  bookingId
-) {
+async function changePaymentStatus(bookingId) {
 
-  const status =
-    prompt(
-      `Enter payment status:
+  const overlay = document.createElement('div');
 
-paid
-pending
-failed
-refunded`,
-      'paid'
-    );
+  overlay.style.cssText =
+    'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:99999';
 
-  if (!status) return;
+  overlay.innerHTML = `
+    <div style="
+      background:white;
+      padding:25px;
+      border-radius:16px;
+      width:360px;
+      max-width:90%;
+    ">
 
-  try {
+      <h2>Payment Status</h2>
 
-    await api(
-      '/api/admin/payments/status',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          bookingId,
-          status
-        })
+      <select id="paymentStatusSelect"
+        style="
+          width:100%;
+          padding:12px;
+          font-size:16px;
+          border-radius:8px;
+          margin:15px 0;
+        ">
+
+        <option value="paid">Paid</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+        <option value="refunded">Refunded</option>
+
+      </select>
+
+      <div style="display:flex;gap:10px">
+
+        <button
+          id="paymentCancel"
+          style="flex:1;padding:12px">
+          Cancel
+        </button>
+
+        <button
+          id="paymentSave"
+          style="flex:1;padding:12px">
+          Update Payment
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#paymentCancel').onclick =
+    () => overlay.remove();
+
+  overlay.querySelector('#paymentSave').onclick =
+    async () => {
+
+      const paymentStatus =
+        overlay.querySelector(
+          '#paymentStatusSelect'
+        ).value;
+
+      try {
+
+        await api(
+          `/api/admin/payments/status`,
+          {
+            method:'POST',
+            body:JSON.stringify({
+              bookingId,
+              status:paymentStatus
+            })
+          }
+        );
+
+        overlay.remove();
+
+        alert(
+          `Payment status updated to ${paymentStatus}`
+        );
+
+        await loadAll();
+
+      } catch(e) {
+
+        alert(e.message);
+
       }
-    );
-
-    await loadAll();
-
-  } catch (e) {
-
-    alert(e.message);
-
-  }
+    };
 }
 
 /* =========================
