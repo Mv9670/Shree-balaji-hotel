@@ -1555,7 +1555,90 @@ Thank you for choosing Shree Balaji Hotel.`;
 
   }
 );
+/* =========================
+   UPDATE BOOKING STATUS
+========================= */
 
+app.patch(
+  '/api/admin/bookings/:bookingId/status',
+  adminAuth,
+  async (req, res) => {
+
+    const client = await pool.connect();
+
+    try {
+
+      const { bookingId } = req.params;
+      const { status } = req.body || {};
+
+      const allowedStatuses = [
+        'confirmed',
+        'checked-in',
+        'checked-out',
+        'cancelled',
+        'no-show'
+      ];
+
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          error: 'Invalid booking status.'
+        });
+      }
+
+      /* Find booking */
+
+      const bookingResult = await client.query(
+        `
+        SELECT *
+        FROM bookings
+        WHERE booking_id = $1
+        LIMIT 1
+        `,
+        [bookingId]
+      );
+
+      if (bookingResult.rows.length === 0) {
+        return res.status(404).json({
+          error: 'Booking not found.'
+        });
+      }
+
+      /* Update status */
+
+      const result = await client.query(
+        `
+        UPDATE bookings
+        SET status = $1
+        WHERE booking_id = $2
+        RETURNING *
+        `,
+        [status, bookingId]
+      );
+
+      res.json({
+        success: true,
+        message: 'Booking status updated successfully.',
+        booking: result.rows[0]
+      });
+
+    } catch (error) {
+
+      console.error(
+        'BOOKING STATUS ERROR:',
+        error
+      );
+
+      res.status(500).json({
+        error: 'Unable to update booking status.'
+      });
+
+    } finally {
+
+      client.release();
+
+    }
+  }
+);
 /* =========================
    SETTINGS
 ========================= */
