@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+<rect width="100%" height="100%" fill="#e9e3d6"/>
+<text x="50%" y="48%" text-anchor="middle" font-family="Arial" font-size="42" fill="#6b6254">ROOM PHOTO</text>
+<text x="50%" y="56%" text-anchor="middle" font-family="Arial" font-size="22" fill="#8c8271">Add your hotel image in the rooms folder</text>
+</svg>

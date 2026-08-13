@@ -1,306 +1,142 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shree Balaji Hotel | Comfort, Luxury & Devotion</title>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<style>
-:root{--gold:#d1a447;--gold2:#efc65f;--black:#0b0b0b;--black2:#151515;--cream:#f7f4ed;--white:#fff;--muted:#b8b1a7;--line:#2a2a2a;--green:#25d366}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#0d0d0d;color:#fff;font-family:Arial,Helvetica,sans-serif}
-a{text-decoration:none;color:inherit}button,input,select{font:inherit}.top{display:none}
-.header{height:80px;background:#0a0a0a;display:flex;align-items:center;justify-content:space-between;padding:0 7%;position:relative;z-index:20;border-bottom:1px solid #222}
-.brand{display:flex;align-items:center;gap:13px}.brand img{width:66px;height:66px;border-radius:50%;object-fit:cover}.brand-title{font-family:Georgia,serif;font-weight:900;font-size:26px;color:var(--gold2);line-height:1}.brand-sub{font-size:12px;color:#eee;margin-top:5px;letter-spacing:.5px}
-.header-right{display:flex;align-items:center;gap:30px;font-size:14px}.address{display:flex;gap:9px;align-items:center}.address i{color:var(--gold2);font-style:normal;font-size:20px}.phone{font-weight:900;font-size:17px;display:flex;align-items:center;gap:9px}.wa-dot{width:25px;height:25px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#071b0d}
-.nav{height:43px;background:linear-gradient(90deg,#bd9140,#e0b95d,#bd9140);display:flex;align-items:center;padding:0 7%;gap:7px;color:#111;font-weight:900;font-size:12px;text-transform:uppercase}.nav a{padding:10px 20px;height:43px;display:flex;align-items:center}.nav a:hover,.nav a.active{background:#101010;color:var(--gold2)}.nav .book{margin-left:auto;background:#111;color:var(--gold2);border-radius:2px;padding:0 24px;height:34px;margin-top:0}
-.hero{min-height:505px;background:linear-gradient(90deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,.45) 45%,rgba(0,0,0,.22)),url("images/lobby-main.jpeg") center/cover;position:relative}.hero-inner{width:86%;max-width:1320px;margin:auto;display:grid;grid-template-columns:1.15fr .65fr;gap:35px;align-items:center;padding:55px 0}
-.welcome{font-family:cursive;font-size:38px;color:var(--gold2);margin-bottom:2px}.hero h1{font-family:Georgia,serif;font-size:64px;line-height:.92;margin:0;text-shadow:0 3px 8px #000}.hero h1 span{color:var(--gold2)}.hero p{font-size:17px;line-height:1.45;max-width:610px;color:#eee;margin:18px 0}.hero-features{display:flex;gap:42px;margin-top:20px}.hero-feature{text-align:center;font-size:13px;max-width:95px}.hero-feature .icon{width:48px;height:48px;border:3px solid var(--gold2);border-radius:50%;display:grid;place-items:center;color:var(--gold2);font-size:22px;margin:auto auto 7px}
-.book-box{background:rgba(8,8,8,.88);padding:24px 25px 25px;border-radius:2px;box-shadow:0 15px 40px #0008;border:1px solid #292929}.book-title{text-align:center;font-family:Georgia,serif;color:var(--gold2);font-size:19px;font-weight:900;margin:0 0 18px}.book-title:before,.book-title:after{content:"";display:inline-block;width:34px;height:1px;background:var(--gold);vertical-align:middle;margin:0 10px}.book-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:6px}.field input,.field select{width:100%;padding:12px;border:0;background:#fff;color:#222;border-radius:2px;outline:none}.check-btn{width:100%;border:0;background:linear-gradient(#dfb654,#bd8e38);color:#fff;font-weight:900;padding:14px;margin-top:17px;cursor:pointer;font-size:15px}.check-btn:hover{filter:brightness(1.08)}
-.stats{background:#0d0d0d;display:grid;grid-template-columns:repeat(4,1fr);padding:14px 7%;border-top:1px solid #222;border-bottom:1px solid #222}.stat{display:flex;justify-content:center;align-items:center;gap:14px;border-right:1px solid #444;padding:7px}.stat:last-child{border:0}.stat .bigicon{color:var(--gold2);font-size:29px}.stat strong{font-family:Georgia,serif;font-size:23px;color:var(--gold2)}.stat small{display:block;color:#fff;font-family:Georgia,serif;font-size:14px}
-.section{padding:58px 7%;background:radial-gradient(circle at top,#1a1916,#0d0d0d 55%)}.section.light{background:var(--cream);color:#171717}.section-title{text-align:center;margin-bottom:31px}.kicker{color:var(--gold2);font-family:Georgia,serif;font-weight:900;letter-spacing:2px;font-size:15px}.section-title h2{font-family:Georgia,serif;font-size:29px;margin:8px 0 4px}.ornament{color:var(--gold2);letter-spacing:6px}.section-title p{color:#a9a39a;font-size:13px}
-.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1180px;margin:auto}.room{background:#fff;color:#161616;border-radius:10px;overflow:hidden;box-shadow:0 10px 28px #0006}.room-img{height:180px;position:relative;overflow:hidden}.room-img img{width:100%;height:100%;object-fit:cover;transition:.35s}.room:hover .room-img img{transform:scale(1.05)}.price{position:absolute;right:10px;top:10px;background:#171717e8;color:var(--gold2);padding:8px 12px;border-radius:8px;font-size:22px;font-weight:900}.price small{display:block;color:#fff;text-align:right;font-size:10px}.room-body{padding:13px 16px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}.room-name{font-family:Georgia,serif;font-size:17px;font-weight:900}.room-details{font-size:10px;color:#555;margin-top:8px}.room-btn{background:#d1a447;color:#111;padding:10px 15px;font-size:11px;font-weight:900;border:0;cursor:pointer;white-space:nowrap}.soldout-badge{display:none;position:absolute;left:10px;top:10px;background:#b42318;color:#fff;padding:8px 11px;border-radius:7px;font-size:12px;font-weight:900;letter-spacing:.5px;box-shadow:0 3px 10px #0008}.room.sold-out .soldout-badge{display:block}.room.sold-out .room-btn{background:#999;color:#fff;cursor:not-allowed}.availability-text{font-size:10px;color:#777;margin-top:6px;font-weight:700}.room.sold-out .availability-text{color:#b42318}
-.amenities{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;max-width:1250px;margin:auto}.amenity{text-align:center;color:#eee;font-size:11px}.amenity .ai{font-size:27px;color:var(--gold2);height:35px}.amenity b{font-weight:500}
-.gallery{display:grid;grid-template-columns:1.4fr .8fr .8fr;grid-template-rows:180px 180px;gap:9px;max-width:1180px;margin:auto}.g{overflow:hidden;border-radius:7px}.g.big{grid-row:span 2}.g img{width:100%;height:100%;object-fit:cover;transition:.3s}.g:hover img{transform:scale(1.05)}
-.about{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1120px;margin:auto;align-items:center}.about img{width:100%;height:350px;object-fit:cover;border-radius:9px}.about h2{font-family:Georgia,serif;font-size:36px;color:#171717}.about p{color:#59534c;line-height:1.7}
-.booking{background:linear-gradient(135deg,#0e0e0e,#1a1712);padding:65px 7%}.booking-card{max-width:950px;margin:auto;background:#fff;color:#171717;border-radius:12px;padding:28px;box-shadow:0 25px 65px #0008}.booking-card h2{text-align:center;font-family:Georgia,serif;color:#171717}.booking-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.booking-card label{font-size:10px;font-weight:900;color:#625a51;display:block;margin-bottom:5px}.booking-card input,.booking-card select{width:100%;padding:12px;border:1px solid #e3ddd4;border-radius:5px;background:#fff}.full{grid-column:1/-1}
-.idbox{margin-top:18px;padding:16px;border:1px solid #e4ddd2;background:#faf6ee;border-radius:8px}.idbox h3{margin:0 0 6px;font-family:Georgia,serif}.idnote{font-size:11px;color:#6b6258;line-height:1.45}.guest-id{border-top:1px solid #e1d9ce;margin-top:13px;padding-top:13px}.guest-id:first-of-type{border-top:0;margin-top:0;padding-top:0}.id-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.summary{display:flex;justify-content:space-between;background:#f4eee3;padding:15px;border-radius:6px;margin:17px 0}.summary strong{color:#b8882f;font-size:21px}.pay{width:100%;background:linear-gradient(#dfb654,#bd8e38);color:#fff;border:0;padding:15px;font-weight:900;cursor:pointer}.pay:disabled{opacity:.6}.error{display:none;background:#fff0ed;color:#a62d1c;padding:11px;border-radius:6px;font-size:12px;margin:10px 0}.error.show{display:block}.secure{font-size:10px;color:#777;margin-top:9px}.result{display:none;text-align:center;padding:30px}.result.show{display:block}.success{color:#158447;font-size:27px;font-weight:900}.ref{display:inline-block;background:#f3ede4;padding:10px 15px;border-radius:5px;font-family:monospace}.whatsapp{display:inline-block;background:var(--green);color:#06240f;padding:12px 18px;border-radius:7px;font-weight:900;margin-top:10px}
-.contact{background:#0b0b0b;text-align:center;padding:50px 7%;border-top:1px solid #252525}.contact h2{font-family:Georgia,serif;color:var(--gold2)}.contact p{color:#c9c2b8}.contact-btn{display:inline-block;background:var(--green);color:#05200d;padding:12px 20px;border-radius:7px;font-weight:900}
-footer{background:#050505;text-align:center;padding:25px;color:#8d877f;font-size:11px}.floating{position:fixed;right:22px;bottom:18px;width:58px;height:58px;background:var(--green);border:4px solid #fff;border-radius:50%;display:grid;place-items:center;color:#063013;font-size:26px;z-index:50;box-shadow:0 4px 15px #0008}
-@media(max-width:950px){.header{padding:0 4%}.header-right{display:none}.nav{padding:0 4%;overflow:auto}.nav a{padding:10px 13px;white-space:nowrap}.hero-inner{width:92%;grid-template-columns:1fr}.book-box{max-width:600px}.stats{padding:14px 3%}.amenities{grid-template-columns:repeat(4,1fr)}.about{grid-template-columns:1fr}.rooms{grid-template-columns:1fr}.room{max-width:500px;margin:auto;width:100%}}
-@media(max-width:600px){.brand-title{font-size:18px}.brand-sub{font-size:9px}.brand img{width:50px;height:50px}.nav .book{display:none}.hero{min-height:auto}.hero-inner{padding:45px 0}.hero h1{font-size:47px}.welcome{font-size:30px}.hero-features{gap:15px}.stats{grid-template-columns:1fr 1fr}.stat{border-right:0}.amenities{grid-template-columns:repeat(2,1fr)}.gallery{grid-template-columns:1fr 1fr;grid-template-rows:160px 160px 160px}.g.big{grid-row:span 1;grid-column:span 2}.booking-grid,.id-grid{grid-template-columns:1fr}.full{grid-column:auto}.section{padding:45px 5%}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111111">
+  <title>Shree Balaji Hotel | Book Your Room</title>
+  <link rel="icon" href="logo.jpeg">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
 <header class="header">
-<a href="#home" class="brand">
-<img src="shree-balaji-logo.jpeg" alt="Shree Balaji Hotel Logo">
-<div><div class="brand-title">SHREE BALAJI HOTEL</div><div class="brand-sub">Comfort, Luxury & Devotion</div></div>
-</a>
-<div class="header-right">
-<div class="address"><i>📍</i><span>4, Balaji Tower, Near ICICI Bank</span></div>
-<div class="phone"><span class="wa-dot">⌕</span>7987510587</div>
-</div>
+  <div class="brand">
+    <img src="logo.jpeg" alt="Shree Balaji Hotel logo">
+    <div>
+      <div class="hotel-name">SHREE BALAJI HOTEL</div>
+      <div class="tagline">Comfort • Luxury • Devotion</div>
+    </div>
+  </div>
+  <a class="wa-top" href="https://wa.me/917987510587" target="_blank" rel="noopener">
+    <span class="wa-icon">◉</span> WhatsApp
+  </a>
 </header>
 
-<nav class="nav">
-<a class="active" href="#home">Home</a><a href="#rooms">Rooms</a><a href="#gallery">Gallery</a><a href="#amenities">Amenities</a><a href="#booking">Book Room</a><a href="#about">About Us</a><a href="#contact">Contact</a><a class="book" href="#booking">▣ &nbsp; BOOK NOW</a>
-</nav>
-
-<section id="home" class="hero">
-<div class="hero-inner">
-<div>
-<div class="welcome">Welcome to</div>
-<h1>SHREE BALAJI<br><span>HOTEL</span></h1>
-<p>Experience a perfect blend of comfort, convenience and divine hospitality.</p>
-<div class="hero-features">
-<div class="hero-feature"><div class="icon">🛏</div>Luxurious<br>Rooms</div>
-<div class="hero-feature"><div class="icon">✦</div>Best Price<br>Guarantee</div>
-<div class="hero-feature"><div class="icon">24</div>24/7<br>Support</div>
-</div>
-</div>
-
-<div class="book-box">
-<div class="book-title">BOOK YOUR STAY</div>
-<div class="book-grid">
-<div class="field"><label>CHECK-IN</label><input id="quickIn" type="date"></div>
-<div class="field"><label>CHECK-OUT</label><input id="quickOut" type="date"></div>
-<div class="field"><label>ROOM TYPE</label><select id="quickRoom"><option value="standard">Select Room Type</option><option value="standard">Standard — ₹1,000</option><option value="deluxe">Deluxe — ₹1,200</option><option value="super_deluxe">Super Deluxe — ₹1,500</option></select></div>
-<div class="field"><label>GUESTS</label><select id="quickGuests"><option value="1">1 Guest</option><option value="2">2 Guests</option></select></div>
-</div>
-<button class="check-btn" onclick="startBooking()">CHECK AVAILABILITY</button>
-</div>
-</div>
+<section class="hero">
+  <div class="hero-overlay">
+    <p class="eyebrow">WELCOME TO SHREE BALAJI HOTEL</p>
+    <h1>Comfortable Stay.<br><span>Premium Rooms.</span></h1>
+    <p>Book directly with us and choose your preferred room category.</p>
+    <a href="#rooms" class="primary-btn">BOOK YOUR ROOM</a>
+  </div>
 </section>
-
-<div class="stats">
-<div class="stat"><div class="bigicon">👥</div><div><strong>20</strong><small>Comfortable Rooms</small></div></div>
-<div class="stat"><div class="bigicon">🛏</div><div><strong>7+7+6</strong><small>Room Categories</small></div></div>
-<div class="stat"><div class="bigicon">📍</div><div><strong>Prime Location</strong><small>Near ICICI Bank</small></div></div>
-<div class="stat"><div class="bigicon">👍</div><div><strong>Best Hospitality</strong><small>At Affordable Price</small></div></div>
-</div>
 
 <section id="rooms" class="section">
-<div class="section-title"><div class="kicker">✦ OUR ROOMS ✦</div><h2>COMFORTABLE & LUXURIOUS ROOMS</h2><div class="ornament">──── ✦ ────</div></div>
-<div class="rooms">
-<article class="room" data-room-card="standard"><div class="room-img"><img src="standard-room.jpeg"><div class="price">₹1,000<small>/ Night</small></div><div class="soldout-badge" id="soldout-standard">SOLD OUT</div></div><div class="room-body"><div><div class="room-name">STANDARD ROOM</div><div class="room-details">🛏 Queen Bed &nbsp;•&nbsp; ❄ AC &nbsp;•&nbsp; 📺 TV &nbsp;•&nbsp; 🚿 Attached Bathroom</div><div class="availability-text" id="availability-standard">Select dates to check availability</div></div><button class="room-btn" id="room-btn-standard" onclick="chooseRoom('standard')">BOOK NOW</button></div></article>
-<article class="room" data-room-card="deluxe"><div class="room-img"><img src="standard-room.jpeg"><div class="price">₹1,200<small>/ Night</small></div><div class="soldout-badge" id="soldout-deluxe">SOLD OUT</div></div><div class="room-body"><div><div class="room-name">DELUXE ROOM</div><div class="room-details">🛏 King Bed &nbsp;•&nbsp; ❄ AC &nbsp;•&nbsp; 📺 TV &nbsp;•&nbsp; 🚿 Attached Bathroom</div><div class="availability-text" id="availability-deluxe">Select dates to check availability</div></div><button class="room-btn" id="room-btn-deluxe" onclick="chooseRoom('deluxe')">BOOK NOW</button></div></article>
-<article class="room" data-room-card="super_deluxe"><div class="room-img"><img src="standard-room.jpeg"><div class="price">₹1,500<small>/ Night</small></div><div class="soldout-badge" id="soldout-super_deluxe">SOLD OUT</div></div><div class="room-body"><div><div class="room-name">SUPER DELUXE ROOM</div><div class="room-details">🛏 King Bed &nbsp;•&nbsp; ❄ AC &nbsp;•&nbsp; 📺 TV &nbsp;•&nbsp; 🚿 Attached Bathroom</div><div class="availability-text" id="availability-super_deluxe">Select dates to check availability</div></div><button class="room-btn" id="room-btn-super_deluxe" onclick="chooseRoom('super_deluxe')">BOOK NOW</button></div></article>
-</div>
+  <div class="section-head">
+    <p class="eyebrow">ROOM CATEGORIES</p>
+    <h2>Choose Your Room</h2>
+    <p>Standard, Deluxe and Super Deluxe rooms • Maximum 2 guests per room • ID verification required</p>
+  </div>
+
+  <div class="room-grid">
+    <article class="room-card">
+      <div class="carousel" data-category="standard">
+        <img src="rooms/standard-1.jpg" alt="Standard Room" onerror="this.src='placeholder.svg'">
+        <button class="prev" onclick="moveSlide(this,-1)">‹</button>
+        <button class="next" onclick="moveSlide(this,1)">›</button>
+        <div class="dots"></div>
+      </div>
+      <div class="room-body">
+        <span class="pill">STANDARD ROOMS</span>
+        <h3>Standard Room</h3>
+        <p>Clean, comfortable room with essential amenities for a convenient stay.</p>
+        <div class="room-meta"><b>₹1,000</b><span>per night</span></div>
+        <button class="book-btn" onclick="openBooking('Standard Room', 1000)">Book Standard</button>
+      </div>
+    </article>
+
+    <article class="room-card">
+      <div class="carousel" data-category="deluxe">
+        <img src="rooms/deluxe-1.jpg" alt="Deluxe Room" onerror="this.src='placeholder.svg'">
+        <button class="prev" onclick="moveSlide(this,-1)">‹</button>
+        <button class="next" onclick="moveSlide(this,1)">›</button>
+        <div class="dots"></div>
+      </div>
+      <div class="room-body">
+        <span class="pill gold">DELUXE ROOMS</span>
+        <h3>Deluxe Room</h3>
+        <p>Spacious interiors, comfortable bedding, AC, TV and a relaxing seating area.</p>
+        <div class="room-meta"><b>₹1,200</b><span>per night</span></div>
+        <button class="book-btn" onclick="openBooking('Deluxe Room', 1200)">Book Deluxe</button>
+      </div>
+    </article>
+
+    <article class="room-card">
+      <div class="carousel" data-category="super">
+        <img src="rooms/super-1.jpg" alt="Super Deluxe Room" onerror="this.src='placeholder.svg'">
+        <button class="prev" onclick="moveSlide(this,-1)">‹</button>
+        <button class="next" onclick="moveSlide(this,1)">›</button>
+        <div class="dots"></div>
+      </div>
+      <div class="room-body">
+        <span class="pill red">SUPER DELUXE ROOMS</span>
+        <h3>Super Deluxe Room</h3>
+        <p>Our premium category with upgraded interiors, larger space and enhanced comfort.</p>
+        <div class="room-meta"><b>₹1,500</b><span>per night</span></div>
+        <button class="book-btn" onclick="openBooking('Super Deluxe Room', 1500)">Book Super Deluxe</button>
+      </div>
+    </article>
+  </div>
 </section>
 
-<section id="amenities" class="section" style="padding-top:25px;padding-bottom:45px">
-<div class="amenities">
-<div class="amenity"><div class="ai">⌁</div><b>FREE Wi-Fi</b></div><div class="amenity"><div class="ai">❄</div><b>AC ROOMS</b></div><div class="amenity"><div class="ai">▣</div><b>LED TV</b></div><div class="amenity"><div class="ai">🚿</div><b>ATTACHED BATHROOM</b></div><div class="amenity"><div class="ai">💧</div><b>24/7 HOT WATER</b></div><div class="amenity"><div class="ai">♙</div><b>DAILY HOUSEKEEPING</b></div><div class="amenity"><div class="ai">◈</div><b>CCTV SECURITY</b></div><div class="amenity"><div class="ai">🚗</div><b>PARKING FACILITY</b></div>
-</div>
+<section class="section dark">
+  <div class="section-head">
+    <p class="eyebrow">LIVE ROOM ALLOCATION</p>
+    <h2>Available Rooms</h2>
+    <p>Select a room number during booking. Sold-out rooms are automatically hidden.</p>
+  </div>
+  <div class="availability">
+    <div class="avail-card"><h3>Super Deluxe</h3><p id="superCount"></p><div id="superRooms" class="room-numbers"></div></div>
+    <div class="avail-card"><h3>Deluxe</h3><p id="deluxeCount"></p><div id="deluxeRooms" class="room-numbers"></div></div>
+    <div class="avail-card"><h3>Standard</h3><p id="standardCount"></p><div id="standardRooms" class="room-numbers"></div></div>
+  </div>
 </section>
 
-<section id="gallery" class="section light">
-<div class="section-title"><div class="kicker" style="color:#9d7428">✦ GALLERY ✦</div><h2>EXPLORE SHREE BALAJI HOTEL</h2><div class="ornament" style="color:#a77b29">──── ✦ ────</div></div>
-<div class="gallery">
-<div class="g big"><img src="lobby-main.jpeg"></div><div class="g"><img src="reception.jpeg"></div><div class="g"><img src="standard-room.jpeg"></div><div class="g"><img src="upper-corridor.jpeg"></div><div class="g"><img src="bathroom-2.jpeg"></div><div class="g"><img src="lobby-art.jpeg"></div>
-</div>
+<section class="section contact">
+  <div>
+    <p class="eyebrow">NEED HELP?</p>
+    <h2>Book Directly on WhatsApp</h2>
+    <p>For room availability, ID requirements or booking assistance, contact Shree Balaji Hotel.</p>
+  </div>
+  <a class="wa-large" href="https://wa.me/917987510587" target="_blank" rel="noopener">
+    <span class="wa-logo">◉</span> WhatsApp • 7987510587
+  </a>
 </section>
 
-<section id="about" class="section light" style="padding-top:30px">
-<div class="about"><img src="lobby-art.jpeg"><div><div class="kicker" style="color:#9d7428">ABOUT SHREE BALAJI HOTEL</div><h2>A Comfortable Stay in a Convenient Location</h2><p>Shree Balaji Hotel offers comfortable accommodation with air-conditioned rooms, television, attached bathrooms and convenient guest facilities. Our location at Balaji Tower, near ICICI Bank, makes the hotel easy to reach.</p><p>Choose your room, select your dates and complete your reservation online with secure payment.</p><a class="room-btn" href="#booking">BOOK YOUR ROOM</a></div></div>
-</section>
+<footer>
+  <img src="logo.jpeg" alt="">
+  <div><strong>SHREE BALAJI HOTEL</strong><br>4, Balaji Tower, Near ICICI Bank</div>
+  <small>© Shree Balaji Hotel • Comfort, Luxury & Devotion</small>
+</footer>
 
-<section id="booking" class="booking">
-<div class="section-title"><div class="kicker">✦ ONLINE RESERVATION ✦</div><h2>BOOK YOUR ROOM</h2><p>Maximum 2 guests per room • ID verification required for every guest</p></div>
-<div class="booking-card" id="bookingCard">
-<form id="bookingForm">
-<div class="booking-grid">
-<div><label>GUEST 1 — FULL NAME</label><input id="name" required placeholder="Full name"></div>
-<div><label>GUEST 1 — PHONE</label><input id="phone" required placeholder="Mobile number"></div>
-<div><label>EMAIL (OPTIONAL)</label><input id="email" type="email" placeholder="Email address"></div>
-<div><label>NUMBER OF GUESTS</label><select id="guestCount"><option value="1">1 Guest</option><option value="2">2 Guests</option></select></div>
-<div><label>CHECK-IN</label><input id="bIn" required type="date"></div>
-<div><label>CHECK-OUT</label><input id="bOut" required type="date"></div>
-<div class="full"><label>ROOM TYPE</label><select id="bRoom"><option value="standard">Standard — ₹1,000 / Night</option><option value="deluxe">Deluxe — ₹1,200 / Night</option><option value="super_deluxe">Super Deluxe — ₹1,500 / Night</option></select></div>
+<div id="bookingModal" class="modal" aria-hidden="true">
+  <div class="modal-box">
+    <button class="close" onclick="closeBooking()">×</button>
+    <p class="eyebrow">ONLINE RESERVATION</p>
+    <h2 id="modalTitle">Book Your Room</h2>
+    <p class="muted">Maximum 2 guests per room • ID verification required for every guest</p>
+    <form id="bookingForm">
+      <input id="guestName" required placeholder="Guest full name">
+      <input id="guestPhone" required inputmode="tel" placeholder="WhatsApp mobile number">
+      <label>Check-in <input id="checkin" type="date" required></label>
+      <label>Check-out <input id="checkout" type="date" required></label>
+      <select id="roomNumber" required></select>
+      <div class="total">Room rate: <strong id="modalPrice"></strong> / night</div>
+      <button class="book-btn" type="submit">CONTINUE TO WHATSAPP</button>
+    </form>
+  </div>
 </div>
 
-<div class="idbox">
-<h3>🪪 Guest Identity Verification</h3>
-<div class="idnote">For hotel check-in, upload one valid identity document for each guest. Accepted: <b>Aadhaar Card, Driving Licence, Passport or Voter ID</b>. JPG/PNG/PDF, maximum 8 MB per document.</div>
-<div class="guest-id">
-<b>Guest 1 — ID required</b>
-<div class="id-grid"><div><label>ID TYPE</label><select id="id1type" required><option value="">Select ID</option><option value="aadhaar">Aadhaar Card</option><option value="driving_license">Driving Licence</option><option value="passport">Passport</option><option value="voter_id">Voter ID</option></select></div><div><label>UPLOAD ID</label><input id="id1" type="file" accept=".jpg,.jpeg,.png,.pdf" required></div></div>
-</div>
-<div class="guest-id" id="guest2" style="display:none"><b>Guest 2 — ID required</b><div class="id-grid"><div><label>ID TYPE</label><select id="id2type"><option value="">Select ID</option><option value="aadhaar">Aadhaar Card</option><option value="driving_license">Driving Licence</option><option value="passport">Passport</option><option value="voter_id">Voter ID</option></select></div><div><label>UPLOAD ID</label><input id="id2" type="file" accept=".jpg,.jpeg,.png,.pdf"></div></div></div>
-</div>
-<div id="error" class="error"></div>
-<div class="summary"><span id="summary">Select dates</span><strong id="total">₹0</strong></div>
-<button class="pay" id="payBtn">PROCEED TO SECURE PAYMENT</button>
-<div class="secure">🔒 ID documents are kept outside the public website folder. Razorpay handles payment details; never share your Razorpay Key Secret in frontend code.</div>
-</form>
-<div class="result" id="result"><div class="success">✓ BOOKING CONFIRMED</div><p>Booking Reference</p><div class="ref" id="ref"></div><p id="resultText"></p><a id="wa" class="whatsapp" target="_blank">SEND BOOKING DETAILS ON WHATSAPP</a></div>
-</div>
-</section>
-
-<section id="contact" class="contact"><h2>SHREE BALAJI HOTEL</h2><p>4, Balaji Tower, Near ICICI Bank</p><a class="contact-btn" href="https://wa.me/917987510587" target="_blank">WhatsApp • 7987510587</a></section>
-<footer>© Shree Balaji Hotel • Comfort, Luxury & Devotion</footer>
-<a class="floating" href="https://wa.me/917987510587" target="_blank">◔</a>
-
-<script>
-let config=null;
-const $=id=>document.getElementById(id);
-const today=new Date().toISOString().slice(0,10);
-['quickIn','quickOut','bIn','bOut'].forEach(id=>$(id).min=today);
-
-async function init(){
-  config=await (await fetch('/api/config')).json();
-  sync();
-  refreshAvailability();
-}
-function nights(){
-  const a=new Date($('bIn').value),b=new Date($('bOut').value);
-  return isNaN(a)||isNaN(b)?0:Math.round((b-a)/86400000);
-}
-function sync(){
-  if(!config)return;
-  const n=nights(),r=config.rooms[$('bRoom').value].rate;
-  $('total').textContent='₹'+(n*r).toLocaleString('en-IN');
-  $('summary').textContent=n?`${n} night(s) • ${config.rooms[$('bRoom').value].name} • Maximum 2 guests`:'Select check-in and check-out dates';
-}
-function chooseRoom(type){
-  $('bRoom').value=type;
-  document.getElementById('booking').scrollIntoView({behavior:'smooth'});
-  sync();
-  refreshAvailability();
-}
-function startBooking(){
-  if($('quickIn').value)$('bIn').value=$('quickIn').value;
-  if($('quickOut').value)$('bOut').value=$('quickOut').value;
-  $('bRoom').value=$('quickRoom').value;
-  $('guestCount').value=$('quickGuests').value;
-  $('guest2').style.display=$('guestCount').value==='2'?'block':'none';
-  document.getElementById('booking').scrollIntoView({behavior:'smooth'});
-  sync();
-  refreshAvailability();
-}
-
-async function refreshAvailability(){
-  if(!config)return;
-  const checkin=$('bIn').value, checkout=$('bOut').value;
-  const valid=checkin && checkout && nights()>0;
-  const selects=[$('bRoom'),$('quickRoom')];
-
-  if(!valid){
-    Object.keys(config.rooms).forEach(k=>{
-      const card=document.querySelector(`[data-room-card="${k}"]`);
-      const badge=$('soldout-'+k), text=$('availability-'+k), btn=$('room-btn-'+k);
-      if(card)card.classList.remove('sold-out');
-      if(badge)badge.style.display='none';
-      if(text)text.textContent='Select dates to check availability';
-      if(btn){btn.disabled=false;btn.textContent='BOOK NOW';}
-    });
-    return;
-  }
-
-  try{
-    const r=await fetch(`/api/availability?checkin=${encodeURIComponent(checkin)}&checkout=${encodeURIComponent(checkout)}`);
-    const data=await r.json();
-    if(!r.ok)throw new Error(data.error||'Could not check availability.');
-
-    Object.keys(config.rooms).forEach(k=>{
-      const count=Number(data[k]?.available||0);
-      const card=document.querySelector(`[data-room-card="${k}"]`);
-      const badge=$('soldout-'+k), text=$('availability-'+k), btn=$('room-btn-'+k);
-      const sold=count<=0;
-      if(card)card.classList.toggle('sold-out',sold);
-      if(badge)badge.style.display=sold?'block':'none';
-      if(text)text.textContent=sold?'SOLD OUT for selected dates':`${count} room${count===1?'':'s'} available`;
-      if(btn){btn.disabled=sold;btn.textContent=sold?'SOLD OUT':'BOOK NOW';}
-
-      selects.forEach(sel=>{
-        const opt=sel.querySelector(`option[value="${k}"]`);
-        if(opt){
-          opt.disabled=sold;
-          const base=opt.textContent.replace(/ — SOLD OUT$/,'').replace(/ — \d+ available$/,'');
-          opt.textContent=sold?`${base} — SOLD OUT`:`${base}`;
-        }
-      });
-    });
-
-    const selected=$('bRoom').value;
-    if(data[selected] && Number(data[selected].available)<=0){
-      const first=Object.keys(config.rooms).find(k=>Number(data[k]?.available||0)>0);
-      if(first){
-        $('bRoom').value=first;
-        sync();
-      }
-    }
-  }catch(e){
-    console.error(e);
-  }
-}
-
-['bIn','bOut'].forEach(id=>$(id).addEventListener('change',()=>{sync();refreshAvailability();}));
-$('bRoom').addEventListener('change',sync);
-$('quickIn').addEventListener('change',()=>{if($('quickIn').value) $('bIn').value=$('quickIn').value;refreshAvailability();});
-$('quickOut').addEventListener('change',()=>{if($('quickOut').value) $('bOut').value=$('quickOut').value;refreshAvailability();});
-$('quickRoom').addEventListener('change',()=>{});
-$('guestCount').addEventListener('change',()=>{
-  $('guest2').style.display=$('guestCount').value==='2'?'block':'none';
-  $('id2').required=$('guestCount').value==='2';
-  $('id2type').required=$('guestCount').value==='2';
-});
-
-$('bookingForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  $('error').classList.remove('show');
-  await refreshAvailability();
-
-  const g2=$('guestCount').value==='2';
-  if(nights()<=0)return showErr('Please select valid check-in and check-out dates.');
-  if(!$('name').value.trim()||!$('phone').value.trim())return showErr('Please enter guest name and phone number.');
-  if(!$('id1').files[0]||!$('id1type').value)return showErr('Guest 1 ka valid ID select karke upload karein.');
-  if(g2&&(!$('id2').files[0]||!$('id2type').value))return showErr('Guest 2 ka valid ID select karke upload karein.');
-
-  const fd=new FormData();
-  fd.append('name',$('name').value.trim());
-  fd.append('phone',$('phone').value.trim());
-  fd.append('email',$('email').value.trim());
-  fd.append('guests',$('guestCount').value);
-  fd.append('checkin',$('bIn').value);
-  fd.append('checkout',$('bOut').value);
-  fd.append('roomType',$('bRoom').value);
-  fd.append('guest1IdType',$('id1type').value);
-  fd.append('guest1Id',$('id1').files[0]);
-  if(g2){fd.append('guest2IdType',$('id2type').value);fd.append('guest2Id',$('id2').files[0]);}
-
-  $('payBtn').disabled=true;$('payBtn').textContent='CREATING SECURE PAYMENT…';
-  try{
-    const r=await fetch('/api/create-order',{method:'POST',body:fd}),d=await r.json();
-    if(!r.ok)throw new Error(d.error);
-    const rz=new Razorpay({
-      key:d.keyId,amount:d.amount,currency:d.currency,name:'Shree Balaji Hotel',
-      description:`${d.roomName} • ${d.nights} night(s)`,order_id:d.orderId,
-      prefill:{name:$('name').value,contact:$('phone').value,email:$('email').value},
-      theme:{color:'#d1a447'},
-      handler:async resp=>{
-        const vr=await fetch('/api/verify-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...resp,bookingRef:d.bookingRef})});
-        const vd=await vr.json();
-        if(!vr.ok)throw new Error(vd.error);
-        $('bookingForm').style.display='none';
-        $('result').classList.add('show');
-        $('ref').textContent=vd.bookingRef;
-        $('resultText').textContent=`${config.rooms[vd.roomType].name} • Room ${vd.roomNumber||''} • ${vd.checkin} to ${vd.checkout} • Paid ₹${Number(vd.total).toLocaleString('en-IN')}`;
-        $('wa').href='https://wa.me/917987510587?text='+encodeURIComponent(`Shree Balaji Hotel Paid Booking\nReference: ${vd.bookingRef}\nGuest: ${$('name').value}\nRoom Type: ${config.rooms[vd.roomType].name}\nRoom Number: ${vd.roomNumber||'Assigned'}\nCheck-in: ${vd.checkin}\nCheck-out: ${vd.checkout}\nPaid: ₹${vd.total}`);
-      },
-      modal:{ondismiss:()=>{$('payBtn').disabled=false;$('payBtn').textContent='PROCEED TO SECURE PAYMENT'}}
-    });
-    rz.on('payment.failed',x=>{showErr(x.error?.description||'Payment failed. Please try again.');$('payBtn').disabled=false;$('payBtn').textContent='PROCEED TO SECURE PAYMENT'});
-    rz.open();
-  }catch(err){
-    showErr(err.message);
-    $('payBtn').disabled=false;$('payBtn').textContent='PROCEED TO SECURE PAYMENT';
-    if(err.message.toLowerCase().includes('sold out'))refreshAvailability();
-  }
-});
-function showErr(t){$('error').textContent=t;$('error').classList.add('show');}
-init();
-</script>
+<script src="script.js"></script>
 </body>
 </html>
