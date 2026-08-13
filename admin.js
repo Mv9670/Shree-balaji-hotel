@@ -822,44 +822,133 @@ ${b.status}
 ========================= */
 
 async function changeBookingStatus(bookingId) {
-    const status = prompt(
-        `Enter booking status:
+    // Create overlay
+    const overlay = document.createElement('div');
 
-confirmed
-checked-in
-checked-out
-cancelled
-no-show`,
-        'confirmed'
-    );
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        padding: 20px;
+    `;
 
-    if (!status) return;
+    // Create box
+    const box = document.createElement('div');
 
-    const allowed = [
-        'confirmed',
-        'checked-in',
-        'checked-out',
-        'cancelled',
-        'no-show'
-    ];
+    box.style.cssText = `
+        background: #fff;
+        width: min(420px, 100%);
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        font-family: Arial, sans-serif;
+    `;
 
-    if (!allowed.includes(status)) {
-        alert('Invalid booking status.');
-        return;
-    }
+    box.innerHTML = `
+        <h2 style="margin:0 0 18px 0;">
+            Booking Status
+        </h2>
 
-    try {
-        await api(`/api/admin/bookings/${bookingId}/status`, {
-            method: 'PATCH',
-            body: JSON.stringify({ status })
-        });
+        <label style="
+            display:block;
+            margin-bottom:8px;
+            font-weight:600;
+        ">
+            Select booking status
+        </label>
 
-        alert(`Booking status changed to: ${status}`);
-        await loadAll();
+        <select id="bookingStatusSelect" style="
+            width:100%;
+            padding:14px;
+            font-size:16px;
+            border:1px solid #ccc;
+            border-radius:10px;
+            background:#fff;
+            margin-bottom:20px;
+        ">
+            <option value="confirmed">Confirmed</option>
+            <option value="checked-in">Checked-in</option>
+            <option value="checked-out">Checked-out</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="no-show">No-show</option>
+        </select>
 
-    } catch (e) {
-        alert(e.message || 'Unable to update booking status.');
-    }
+        <div style="
+            display:flex;
+            gap:10px;
+            justify-content:flex-end;
+        ">
+            <button id="statusCancelBtn" style="
+                padding:12px 18px;
+                border:1px solid #ccc;
+                border-radius:10px;
+                background:#fff;
+                font-size:15px;
+            ">
+                Cancel
+            </button>
+
+            <button id="statusSaveBtn" style="
+                padding:12px 20px;
+                border:0;
+                border-radius:10px;
+                background:#b08a2e;
+                color:#fff;
+                font-size:15px;
+                font-weight:600;
+            ">
+                Update Status
+            </button>
+        </div>
+    `;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    const select = box.querySelector('#bookingStatusSelect');
+    const cancelBtn = box.querySelector('#statusCancelBtn');
+    const saveBtn = box.querySelector('#statusSaveBtn');
+
+    // Close popup
+    cancelBtn.onclick = () => {
+        overlay.remove();
+    };
+
+    // Update status
+    saveBtn.onclick = async () => {
+        const status = select.value;
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Updating...';
+
+        try {
+            await api(`/api/admin/bookings/${bookingId}/status`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    status: status
+                })
+            });
+
+            overlay.remove();
+
+            alert(`Booking status updated to: ${status}`);
+
+            await loadAll();
+
+        } catch (e) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Update Status';
+
+            alert(
+                e.message ||
+                'Unable to update booking status.'
+            );
+        }
+    };
 }
 
 /* =========================
