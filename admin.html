@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0b0b"><title>Shree Balaji Hotel — Admin</title>
+<link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+<div id="loginView" class="login-shell">
+  <div class="login-card">
+    <img src="./logo.jpeg" alt="Shree Balaji Hotel">
+    <p class="eyebrow">SECURE ADMIN</p><h1>Shree Balaji Hotel</h1><p class="muted">Manage rooms, bookings and payments.</p>
+    <form id="loginForm"><input id="adminUser" autocomplete="username" placeholder="Admin username" required><input id="adminPass" type="password" autocomplete="current-password" placeholder="Password" required><button>LOGIN TO ADMIN</button></form>
+    <p id="loginError" class="error"></p>
+  </div>
+</div>
+<div id="appView" class="app hidden">
+  <aside class="sidebar"><div class="side-brand"><img src="./logo.jpeg"><div><b>SHREE BALAJI</b><span>HOTEL ADMIN</span></div></div><nav><button class="nav-item active" data-view="dashboard">▦ <span>Dashboard</span></button><button class="nav-item" data-view="rooms">🛏 <span>Room Inventory</span></button><button class="nav-item" data-view="bookings">▤ <span>Bookings</span></button><button class="nav-item" data-view="payments">₹ <span>Payments</span></button><button class="nav-item" data-view="settings">⚙ <span>Settings</span></button></nav><button id="logoutBtn" class="logout">Logout</button></aside>
+  <main class="main"><header class="topbar"><div><p class="eyebrow">HOTEL CONTROL CENTER</p><h2 id="pageTitle">Dashboard</h2></div><div class="top-actions"><a href="/" target="_blank">View Website ↗</a><span id="lastUpdated">—</span></div></header>
+  <section id="dashboardView" class="view">
+    <div class="cards"><div class="metric"><span>Total Rooms</span><strong id="mTotal">20</strong></div><div class="metric green"><span>Available</span><strong id="mAvailable">20</strong></div><div class="metric red"><span>Booked / Sold</span><strong id="mBooked">0</strong></div><div class="metric gold"><span>Bookings</span><strong id="mBookings">0</strong></div></div>
+    <div class="grid-2"><div class="panel"><div class="panel-head"><h3>Room Availability</h3><button class="small" onclick="loadAll()">Refresh</button></div><div id="dashRooms" class="room-list"></div></div><div class="panel"><div class="panel-head"><h3>Recent Bookings</h3><button class="small" data-jump="bookings">View all</button></div><div id="recentBookings"></div></div></div>
+  </section>
+  <section id="roomsView" class="view hidden"><div class="panel"><div class="panel-head"><div><h3>Room Inventory</h3><p class="muted">Change a room between Available, Booked and Maintenance.</p></div></div><div id="roomInventory"></div></div></section>
+  <section id="bookingsView" class="view hidden"><div class="panel"><div class="panel-head"><div><h3>Bookings</h3><p class="muted">Online Razorpay bookings and manual admin bookings.</p></div><button class="primary small" id="newBookingBtn">+ Add Booking</button></div><div class="filters"><input id="bookingSearch" placeholder="Search guest, phone, room or booking ID"><select id="bookingStatus"><option value="all">All status</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option><option value="pending">Pending</option></select></div><div class="table-wrap"><table><thead><tr><th>Booking</th><th>Guest</th><th>Room</th><th>Stay</th><th>Amount</th><th>Payment</th><th>Status</th></tr></thead><tbody id="bookingRows"></tbody></table></div></div></section>
+  <section id="paymentsView" class="view hidden"><div class="cards"><div class="metric"><span>Total Revenue</span><strong id="pRevenue">₹0</strong></div><div class="metric green"><span>Paid</span><strong id="pPaid">0</strong></div><div class="metric red"><span>Failed / Pending</span><strong id="pPending">0</strong></div></div><div class="panel"><div class="panel-head"><h3>Payment Records</h3></div><div class="table-wrap"><table><thead><tr><th>Payment ID</th><th>Booking</th><th>Room</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="paymentRows"></tbody></table></div></div></section>
+  <section id="settingsView" class="view hidden"><div class="panel settings"><h3>Hotel Settings</h3><div class="settings-grid"><label>Hotel name<input id="setName" value="Shree Balaji Hotel"></label><label>WhatsApp<input id="setWa" value="7987510587"></label><label>Address<input id="setAddress" value="4, Balaji Tower, Near ICICI Bank"></label><label>Check-in time<input id="setCheckin" value="12:00"></label><label>Check-out time<input id="setCheckout" value="11:00"></label></div><button class="primary" id="saveSettings">Save Settings</button><p class="muted small-note">Payment gateway keys must remain in Render Environment Variables; never paste the Razorpay secret into this page.</p></div><div class="panel"><h3>Admin Security</h3><p class="muted">Set <code>ADMIN_USERNAME</code> and <code>ADMIN_PASSWORD</code> in Render Environment Variables before using the panel in production.</p></div></section>
+  </main>
+</div>
+<div id="bookingModal" class="modal hidden"><div class="modal-card"><button class="x" data-close>×</button><p class="eyebrow">MANUAL BOOKING</p><h3>Add Booking</h3><form id="manualBooking"><input id="bGuest" placeholder="Guest full name" required><input id="bPhone" placeholder="WhatsApp number" required><div class="two"><label>Category<select id="bCat"><option value="standard">Standard</option><option value="deluxe">Deluxe</option><option value="super">Super Deluxe</option></select></label><label>Room<select id="bRoom"></select></label></div><div class="two"><label>Check-in<input id="bIn" type="date" required></label><label>Check-out<input id="bOut" type="date" required></label></div><label>Amount<input id="bAmount" type="number" min="0" required></label><label>Payment<select id="bPay"><option value="paid">Paid</option><option value="pending">Pending</option></select></label><button class="primary">Save Booking</button></form></div></div>
+<script src="./admin.js"></script>
+</body></html>
