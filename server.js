@@ -28,10 +28,24 @@ const upload = multer({
   }
 });
 
+// Fixed physical room inventory. A room is allocated to a booking and held
+// for the payment window; after payment it remains reserved for the stay dates.
 const ROOM_TYPES = {
-  standard: { name: "Standard Room", rate: 1000, inventory: Number(process.env.STANDARD_ROOMS || 7) },
-  deluxe: { name: "Deluxe Room", rate: 1200, inventory: Number(process.env.DELUXE_ROOMS || 7) },
-  super_deluxe: { name: "Super Deluxe Room", rate: 1500, inventory: Number(process.env.SUPER_DELUXE_ROOMS || 6) }
+  standard: {
+    name: "Standard Room",
+    rate: 1000,
+    rooms: ["205", "206", "207", "208", "301", "302", "303", "304", "305", "306", "307"]
+  },
+  deluxe: {
+    name: "Deluxe Room",
+    rate: 1200,
+    rooms: ["201", "202", "203", "204"]
+  },
+  super_deluxe: {
+    name: "Super Deluxe Room",
+    rate: 1500,
+    rooms: ["101", "102", "103", "104", "105"]
+  }
 };
 
 const db = new Database(path.join(__dirname, "hotel.db"));
@@ -57,7 +71,8 @@ CREATE TABLE IF NOT EXISTS bookings (
   guest1_id_type TEXT,
   guest1_id_file TEXT,
   guest2_id_type TEXT,
-  guest2_id_file TEXT
+  guest2_id_file TEXT,
+  room_number TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_booking_dates ON bookings(room_type, checkin, checkout, status);
 CREATE INDEX IF NOT EXISTS idx_razorpay_order ON bookings(razorpay_order_id);
@@ -65,9 +80,10 @@ CREATE INDEX IF NOT EXISTS idx_razorpay_order ON bookings(razorpay_order_id);
 
 try {
   const cols = db.prepare("PRAGMA table_info(bookings)").all().map(x => x.name);
-  for (const [name, type] of [["guest1_id_type","TEXT"],["guest1_id_file","TEXT"],["guest2_id_type","TEXT"],["guest2_id_file","TEXT"]]) {
+  for (const [name, type] of [["guest1_id_type","TEXT"],["guest1_id_file","TEXT"],["guest2_id_type","TEXT"],["guest2_id_file","TEXT"],["room_number","TEXT"]]) {
     if (!cols.includes(name)) db.exec(`ALTER TABLE bookings ADD COLUMN ${name} ${type}`);
   }
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_booking_room_dates ON bookings(room_number, checkin, checkout, status)`);
 } catch (e) { console.error("DB migration error:", e); }
 
 const razorpay = new Razorpay({
@@ -110,10 +126,53 @@ function overlappingCount(roomType, checkin, checkout) {
       AND checkout > ?
   `).get(roomType, checkout, checkin).count;
 }
-function available(roomType, checkin, checkout) {
-  const type = ROOM_TYPES[roomType];
-  return type.inventory - overlappingCount(roomType, checkin, checkout);
+
+function roomIsAvailable(roomNumber, checkin, checkout) {
+  return !db.prepare(`
+    SELECT 1 FROM bookings
+    WHERE room_number = ?
+      AND status IN ('pending','paid','confirmed')
+      AND checkin < ?
+      AND checkout > ?
+    LIMIT 1
+  `).get(roomNumber, checkout, checkin);
 }
+
+function findAvailableRoom(roomType, checkin, checkout) {
+  const type = ROOM_TYPES[roomType];
+  if (!type) return null;
+  for (const roomNumber of type.rooms) {
+    if (roomIsAvailable(roomNumber, checkin, checkout)) return roomNumber;
+  }
+  return null;
+}
+
+function available(roomType, checkin, checkout) {
+  expireOldPending();
+  const type = ROOM_TYPES[roomType];
+  if (!type) return 0;
+  return type.rooms.filter(roomNumber => roomIsAvailable(roomNumber, checkin, checkout)).length;
+}
+
+// Older database rows created before room allocation existed are assigned a
+// real room number once, so they also participate in duplicate-room checks.
+function backfillRoomNumbers() {
+  const rows = db.prepare(`
+    SELECT id, room_type, checkin, checkout
+    FROM bookings
+    WHERE room_number IS NULL
+      AND status IN ('pending','paid','confirmed')
+    ORDER BY checkin, checkout, created_at, id
+  `).all();
+
+  const update = db.prepare(`UPDATE bookings SET room_number=? WHERE id=?`);
+  for (const row of rows) {
+    const room = findAvailableRoom(row.room_type, row.checkin, row.checkout);
+    if (room) update.run(room, row.id);
+  }
+}
+
+backfillRoomNumbers();
 function cleanText(v, max=200) {
   return String(v ?? "").trim().slice(0, max);
 }
@@ -188,7 +247,7 @@ app.get("/api/config", (req, res) => {
       address: "4, Balaji Tower, Near ICICI Bank",
       whatsapp: "7987510587"
     },
-    rooms: Object.fromEntries(Object.entries(ROOM_TYPES).map(([k,v]) => [k, {name:v.name, rate:v.rate}]))
+    rooms: Object.fromEntries(Object.entries(ROOM_TYPES).map(([k,v]) => [k, {name:v.name, rate:v.rate, roomNumbers:v.rooms}]))
   });
 });
 
@@ -244,6 +303,7 @@ app.post("/api/create-order", upload.fields([
     }
 
     const type = ROOM_TYPES[roomType];
+    expireOldPending();
     if (available(roomType, checkin, checkout) < 1) {
       throw Object.assign(new Error("That room category is sold out for the selected dates."), { status: 409 });
     }
@@ -261,17 +321,38 @@ app.post("/api/create-order", upload.fields([
       notes: { hotel: "Shree Balaji Hotel", room_type: roomType, checkin, checkout, guests: String(guests) }
     });
 
-    db.prepare(`
-      INSERT INTO bookings
-      (booking_ref,name,phone,email,room_type,checkin,checkout,guests,nights,amount,status,razorpay_order_id,created_at,
-       guest1_id_type,guest1_id_file,guest2_id_type,guest2_id_file)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),?,?,?,?)
-    `).run(
-      receipt,name,phone,email,roomType,checkin,checkout,guests,nights,amountRupees,"pending",order.id,
-      guest1IdType,files.guest1Id[0].filename,
-      guests === 2 ? guest2IdType : null,
-      guests === 2 ? files.guest2Id[0].filename : null
-    );
+    // Allocate a specific physical room inside a write transaction. SQLite
+    // serializes this section, preventing two simultaneous checkouts from
+    // receiving the same room for overlapping dates.
+    const insertBooking = db.transaction(() => {
+      expireOldPending();
+      const roomNumber = findAvailableRoom(roomType, checkin, checkout);
+      if (!roomNumber) {
+        throw Object.assign(new Error("That room category was just booked for the selected dates. Please choose another room or date."), { status: 409 });
+      }
+
+      db.prepare(`
+        INSERT INTO bookings
+        (booking_ref,name,phone,email,room_type,room_number,checkin,checkout,guests,nights,amount,status,razorpay_order_id,created_at,
+         guest1_id_type,guest1_id_file,guest2_id_type,guest2_id_file)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),?,?,?,?)
+      `).run(
+        receipt,name,phone,email,roomType,roomNumber,checkin,checkout,guests,nights,amountRupees,"pending",order.id,
+        guest1IdType,files.guest1Id[0].filename,
+        guests === 2 ? guest2IdType : null,
+        guests === 2 ? files.guest2Id[0].filename : null
+      );
+      return roomNumber;
+    });
+
+    let roomNumber;
+    try {
+      roomNumber = insertBooking();
+    } catch (e) {
+      // The Razorpay order is harmless if allocation loses a race, but the
+      // booking must never be exposed to the customer without a room.
+      throw e;
+    }
 
     res.json({
       keyId: process.env.RAZORPAY_KEY_ID,
@@ -280,6 +361,7 @@ app.post("/api/create-order", upload.fields([
       currency: order.currency,
       bookingRef: receipt,
       roomName: type.name,
+      roomNumber,
       nights,
       total: amountRupees
     });
@@ -318,7 +400,7 @@ app.post("/api/verify-payment", async (req, res) => {
       WHERE booking_ref=?
     `).run(razorpay_payment_id, payment.status === "captured" ? "confirmed" : "paid", payment.status === "captured" ? "confirmed" : "paid", bookingRef);
 
-    const updated = db.prepare(`SELECT booking_ref,status,amount,room_type,checkin,checkout FROM bookings WHERE booking_ref=?`).get(bookingRef);
+    const updated = db.prepare(`SELECT booking_ref,status,amount,room_type,room_number,checkin,checkout FROM bookings WHERE booking_ref=?`).get(bookingRef);
 
     res.json({
       success: true,
@@ -326,6 +408,7 @@ app.post("/api/verify-payment", async (req, res) => {
       bookingRef: updated.booking_ref,
       total: updated.amount,
       roomType: updated.room_type,
+      roomNumber: updated.room_number,
       checkin: updated.checkin,
       checkout: updated.checkout,
       paymentStatus: payment.status

@@ -19,10 +19,10 @@ This package adds:
 2. Copy `.env.example` to `.env`.
 3. Add the Razorpay **Key ID**, **Key Secret**, and **Webhook Secret**.
 4. NEVER put the Key Secret in frontend JavaScript.
-5. Replace the room inventory values in `.env` with the hotel's actual number of sellable rooms:
-   - STANDARD_ROOMS
-   - DELUXE_ROOMS
-   - SUPER_DELUXE_ROOMS
+5. Room allocation is configured directly in `server.js` using the hotel's physical room numbers:
+   - Super Deluxe: 101, 102, 103, 104, 105
+   - Deluxe: 201, 202, 203, 204
+   - Standard: 205, 206, 207, 208, 301, 302, 303, 304, 305, 306, 307
 6. Run:
    `npm install`
    `npm start`
@@ -52,7 +52,7 @@ Super Deluxe ₹1,500/night
 
 ## Important business detail
 
-The configured room inventory is: Standard 7 rooms, Deluxe 7 rooms, Super Deluxe 6 rooms. If the hotel has individual room numbers, a later admin panel can map each booking to a specific room.
+The booking system allocates a specific physical room number when a payment order is created. The room is held while payment is pending and remains reserved after confirmation for the selected stay dates. Overlapping bookings cannot receive the same room number.
 
 Razorpay's current documentation requires server-side order creation, server-side signature verification, and recommends webhooks for reliable payment confirmation.
 
